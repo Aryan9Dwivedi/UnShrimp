@@ -1,22 +1,33 @@
+import { useState } from "react";
 import type { Recording } from "../types/dataset";
 import { buildTrainingCsv } from "../utils/exportCsv";
 import { buildDatasetJsonText } from "../utils/exportJson";
 import { buildManifestText } from "../utils/exportManifest";
 
 export function ExportPanel({ recordings }: { recordings: Recording[] }) {
+  const [exportError, setExportError] = useState<string | null>(null);
   const validSamples = recordings.reduce((sum, recording) => sum + recording.valid_sample_count, 0);
   const droppedSamples = recordings.reduce((sum, recording) => sum + recording.dropped_sample_count, 0);
   const hasRecordings = recordings.length > 0;
   const hasValidSamples = validSamples > 0;
-  const exportRaw = () => downloadText("unshrimp_dataset_raw.json", buildDatasetJsonText(recordings));
-  const exportCsv = () => downloadText("unshrimp_dataset_train.csv", buildTrainingCsv(recordings));
-  const exportManifest = () => downloadText("unshrimp_dataset_manifest.json", buildManifestText(recordings));
+  const exportRaw = () => safeDownload("unshrimp_dataset_raw.json", () => buildDatasetJsonText(recordings), setExportError);
+  const exportCsv = () => safeDownload("unshrimp_dataset_train.csv", () => buildTrainingCsv(recordings), setExportError);
+  const exportManifest = () =>
+    safeDownload("unshrimp_dataset_manifest.json", () => buildManifestText(recordings), setExportError);
   const exportAll = () => {
-    exportRaw();
-    if (hasValidSamples) {
-      exportCsv();
+    try {
+      const csvText = hasValidSamples ? buildTrainingCsv(recordings) : null;
+      const rawText = buildDatasetJsonText(recordings);
+      const manifestText = buildManifestText(recordings);
+      setExportError(null);
+      downloadText("unshrimp_dataset_raw.json", rawText);
+      if (csvText) {
+        downloadText("unshrimp_dataset_train.csv", csvText);
+      }
+      downloadText("unshrimp_dataset_manifest.json", manifestText);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : "Export failed.");
     }
-    exportManifest();
   };
 
   return (
@@ -54,6 +65,7 @@ export function ExportPanel({ recordings }: { recordings: Recording[] }) {
         running the Python validation script.
       </p>
       {!hasValidSamples && <p className="warning-text">Training CSV is disabled until at least one valid sample exists.</p>}
+      {exportError && <p className="error-text">Export blocked: {exportError}</p>}
     </section>
   );
 }
@@ -77,4 +89,14 @@ function downloadText(filename: string, text: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+function safeDownload(filename: string, buildText: () => string, setExportError: (message: string | null) => void) {
+  try {
+    const text = buildText();
+    setExportError(null);
+    downloadText(filename, text);
+  } catch (error) {
+    setExportError(error instanceof Error ? error.message : "Export failed.");
+  }
 }
