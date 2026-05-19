@@ -8,12 +8,12 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 
 | Priority | Batch | Step | Task | Purpose / Need | Done When | Status |
 | --- | --- | ---: | --- | --- | --- | --- |
-| P0 | Scope Lock | 1 | Lock final demo goal | Define UnShrimp as a Chrome extension that monitors seated posture using webcam-based pose estimation and gives real-time feedback. Keeps the project focused. | Team agrees on one clear demo goal. | Not Started |
-| P0 | Scope Lock | 2 | Lock posture classes | Use only: good posture, shrimp/slouch, forward lean, looking down, side lean. Prevents vague labels and messy logic. | Labels are fixed in README, UI, data collection, and model code. | Not Started |
-| P0 | Scope Lock | 3 | Define non-goals | Exclude cloud inference, login, medical diagnosis, full Web Store release, mobile app, raw video storage, and complex dashboard. Prevents overbuilding. | Non-goals are written in README. | Not Started |
-| P0 | Repo Setup | 4 | Create final repo structure | Separate extension code, ML code, docs, datasets, and model files. Keeps work organized. | Repo has clear folders for extension, ML, docs, data, and models. | Not Started |
-| P0 | Repo Setup | 5 | Add project README | Explain project name, goal, MVP scope, tech stack, setup, team roles, and demo target. | Anyone can understand the repo in under 2 minutes. | Not Started |
-| P0 | Repo Setup | 6 | Define Git workflow | Use stable main/dev branches and feature branches. Prevents breaking demo code. | Main branch stays stable and features are merged only after testing. | Not Started |
+| P0 | Scope Lock | 1 | Lock final demo goal | Define UnShrimp as a Chrome extension that monitors seated posture using webcam-based pose estimation and gives real-time feedback. Keeps the project focused. | Team agrees on one clear demo goal. | Done |
+| P0 | Scope Lock | 2 | Lock posture classes | Use only: good posture, shrimp/slouch, forward lean, looking down, side lean. Prevents vague labels and messy logic. | Labels are fixed in README, UI, data collection, and model code. | Done |
+| P0 | Scope Lock | 3 | Define non-goals | Exclude cloud inference, login, medical diagnosis, full Web Store release, mobile app, raw video storage, and complex dashboard. Prevents overbuilding. | Non-goals are written in README. | Done |
+| P0 | Repo Setup | 4 | Create final repo structure | Separate extension code, ML code, docs, datasets, and model files. Keeps work organized. | Repo has clear folders for extension, ML, docs, data, and models. | Ongoing |
+| P0 | Repo Setup | 5 | Add project README | Explain project name, goal, MVP scope, tech stack, setup, team roles, and demo target. | Anyone can understand the repo in under 2 minutes. | Done |
+| P0 | Repo Setup | 6 | Define Git workflow | Use stable main/dev branches and feature branches. Prevents breaking demo code. | Main branch stays stable and features are merged only after testing. | Done |
 | P0 | Extension Foundation | 7 | Build Chrome extension shell | Create manifest, popup, monitor page, basic app entry point, and temporary icons. | Extension loads using Chrome Load Unpacked. | Not Started |
 | P0 | Extension Foundation | 8 | Build monitor page | Create the main screen with webcam area, posture status, score, warning message, start/stop, calibrate, and dev mode buttons. | Monitor page looks like a usable app screen. | Not Started |
 | P0 | Extension Foundation | 9 | Add webcam permission and live feed | Let user start camera and see live webcam stream in the extension. This is the CV input. | Camera starts, displays video, and stops correctly. | Not Started |
