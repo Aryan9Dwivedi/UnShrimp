@@ -22,7 +22,9 @@ export function usePoseLandmarker(
   const [poseConfidence, setPoseConfidence] = useState(0);
   const [fps, setFps] = useState(0);
   const latestPoseRef = useRef<LatestPoseFrame | null>(null);
-  const landmarkerRef = useRef<PoseLandmarker | null>(null);`r`n  const isLoadingRef = useRef(false);`r`n  const rafRef = useRef<number | null>(null);
+  const landmarkerRef = useRef<PoseLandmarker | null>(null);
+  const isLoadingRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
   const lastFrameTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -33,7 +35,8 @@ export function usePoseLandmarker(
         return;
       }
 
-      isLoadingRef.current = true;`r`n      setModelStatus("loading");
+      isLoadingRef.current = true;
+      setModelStatus("loading");
       setModelMessage("Loading pose landmarker model...");
 
       try {
@@ -66,7 +69,10 @@ export function usePoseLandmarker(
         }
         const isMissing = error instanceof Error && error.message === "MODEL_MISSING";
         setModelStatus(isMissing ? "missing" : "error");
-        setModelMessage(isMissing ? MISSING_MODEL_MESSAGE : "Unable to load pose landmarker model.");`r`n      } finally {`r`n        isLoadingRef.current = false;`r`n      }
+        setModelMessage(isMissing ? MISSING_MODEL_MESSAGE : "Unable to load pose landmarker model.");
+      } finally {
+        isLoadingRef.current = false;
+      }
     }
 
     loadModel();
