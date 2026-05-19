@@ -185,21 +185,20 @@ Run this before collecting the full dataset:
 
 1. Collect `P001`, `S001`, `front`, `good_posture`, `10` seconds.
 2. Collect `P001`, `S001`, `front`, `shrimp_slouch`, `10` seconds.
-3. Click `Export Full JSON`.
-4. Click `Export Training CSV`.
-5. Click `Export Manifest JSON`.
-6. Move `unshrimp_dataset_raw.json` into `ml/data/raw/`.
+3. Click `Export All Files`.
+4. Confirm the browser downloads raw JSON, training CSV, and manifest files.
+5. Move the downloaded `*_raw.json` file into `ml/data/raw/`.
 7. Run the validation script.
 8. Run the preparation script.
 9. Confirm processed files are created in `ml/data/processed/`.
 
 ## Exported Files
 
-The app downloads:
+The app downloads timestamped files like:
 
-- `unshrimp_dataset_raw.json`
-- `unshrimp_dataset_train.csv`
-- `unshrimp_dataset_manifest.json`
+- `unshrimp_dataset_YYYYMMDDTHHMMSSZ_raw.json`
+- `unshrimp_dataset_YYYYMMDDTHHMMSSZ_train.csv`
+- `unshrimp_dataset_YYYYMMDDTHHMMSSZ_manifest.json`
 
 The full JSON includes valid and dropped numeric samples. The training CSV includes only valid samples with fixed deterministic columns.
 

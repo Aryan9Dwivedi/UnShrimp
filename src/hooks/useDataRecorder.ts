@@ -103,7 +103,7 @@ export function useDataRecorder() {
     async (
       settings: CollectionSettings,
       latestPoseGetter: () => LatestPoseFrame | null,
-      canRecord: { cameraActive: boolean; poseModelLoaded: boolean },
+      canRecord: { cameraActive: boolean; poseModelLoaded: boolean; poseReady: boolean },
     ) => {
       if (recordingState !== "idle") {
         return;
@@ -297,10 +297,11 @@ function emptyFeatures(poseConfidence: number): PostureFeatures {
 
 function validateRecordingRequest(
   settings: CollectionSettings,
-  canRecord: { cameraActive: boolean; poseModelLoaded: boolean },
+  canRecord: { cameraActive: boolean; poseModelLoaded: boolean; poseReady: boolean },
 ): string | null {
   if (!canRecord.cameraActive) return "Start the camera before recording.";
   if (!canRecord.poseModelLoaded) return "Load the pose model before recording.";
+  if (!canRecord.poseReady) return "Wait until pose is detected with confidence above 0.50.";
   if (!settings.person_id.trim()) return "Person ID is required.";
   if (!settings.session_id.trim()) return "Session ID is required.";
   if (settings.duration_sec <= 0) return "Recording duration must be positive.";

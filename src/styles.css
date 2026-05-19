@@ -369,7 +369,8 @@ td {
 }
 
 .error-text,
-.warning-text {
+.warning-text,
+.ready-text {
   border-radius: 6px;
   font-weight: 800;
   margin: 12px 0 0;
@@ -384,6 +385,11 @@ td {
 .warning-text {
   background: #fff1c7;
   color: #7b5200;
+}
+
+.ready-text {
+  background: #ddf7ee;
+  color: #006c5e;
 }
 
 .split-grid {
@@ -419,6 +425,48 @@ td {
 .validation-list {
   display: grid;
   gap: 10px;
+}
+
+.workflow-list {
+  display: grid;
+  gap: 10px;
+}
+
+.workflow-step {
+  align-items: flex-start;
+  border-bottom: 1px solid #e2eaed;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding-bottom: 10px;
+}
+
+.workflow-step:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.workflow-step p {
+  color: #526b77;
+  margin: 4px 0 0;
+}
+
+.step-dot {
+  align-items: center;
+  background: #e8f1f2;
+  border-radius: 999px;
+  color: #526b77;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 900;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.step-dot.done {
+  background: #ddf7ee;
+  color: #006c5e;
 }
 
 .validation-row {

@@ -141,32 +141,37 @@ export function validateDataset(recordings: Recording[]): ValidationCheck[] {
       "All valid samples use fixed labels.",
       `${invalidLabels.length} valid samples contain labels outside the fixed list.`,
     ),
-    check(
+    sampleCheck(
       "Valid samples have 33 raw landmarks",
+      validSamples.length,
       validSamples.every((sample) => sample.raw_landmarks.length === 33),
       "All valid samples include 33 raw landmarks.",
       "Some valid samples do not include the full MediaPipe landmark set.",
     ),
-    check(
+    sampleCheck(
       "Valid samples have 33 normalized landmarks",
+      validSamples.length,
       validSamples.every((sample) => sample.normalized_landmarks.length === 33),
       "All valid samples include 33 normalized landmarks.",
       "Some valid samples do not include the full normalized landmark set.",
     ),
-    check(
+    sampleCheck(
       "Feature values are finite or allowed null",
+      validSamples.length,
       validSamples.every((sample) => featuresAreValid(sample.features)),
       "All feature values are finite, except allowed hip/torso nulls.",
       "Feature data contains invalid values.",
     ),
-    check(
+    sampleCheck(
       "No NaN values",
+      validSamples.length,
       validSamples.every((sample) => !JSON.stringify(sample).includes("NaN")),
       "No NaN text appears in valid samples.",
       "At least one valid sample contains NaN.",
     ),
-    check(
+    sampleCheck(
       "No Infinity values",
+      validSamples.length,
       validSamples.every((sample) => !JSON.stringify(sample).includes("Infinity")),
       "No Infinity text appears in valid samples.",
       "At least one valid sample contains Infinity.",
@@ -207,6 +212,24 @@ function check(name: string, passed: boolean, passMessage: string, failMessage: 
     status: passed ? "PASS" : "FAIL",
     message: passed ? passMessage : failMessage,
   };
+}
+
+function sampleCheck(
+  name: string,
+  validSampleCount: number,
+  passed: boolean,
+  passMessage: string,
+  failMessage: string,
+): ValidationCheck {
+  if (validSampleCount === 0) {
+    return {
+      name,
+      status: "WARNING",
+      message: "No valid samples yet. Record a pilot sample to run this check.",
+    };
+  }
+
+  return check(name, passed, passMessage, failMessage);
 }
 
 function featuresAreValid(features: PostureFeatures): boolean {

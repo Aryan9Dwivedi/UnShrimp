@@ -6,6 +6,7 @@ import { ExportPanel } from "./components/ExportPanel";
 import { ProtocolPanel } from "./components/ProtocolPanel";
 import { RecordingPanel } from "./components/RecordingPanel";
 import { ValidationPanel } from "./components/ValidationPanel";
+import { WorkflowPanel } from "./components/WorkflowPanel";
 import { useCamera } from "./hooks/useCamera";
 import { useDataRecorder } from "./hooks/useDataRecorder";
 import { usePoseLandmarker } from "./hooks/usePoseLandmarker";
@@ -36,6 +37,14 @@ export default function App() {
   const summary = useMemo(() => summarizeDataset(recorder.recordings), [recorder.recordings]);
   const validationChecks = useMemo(() => validateDataset(recorder.recordings), [recorder.recordings]);
   const recordingBusy = recorder.recordingState !== "idle";
+  const poseReady = poseDetected && poseConfidence >= 0.5;
+  const readyToRecord = isCameraActive && modelStatus === "loaded" && poseReady;
+  const readinessMessage = getReadinessMessage({
+    isCameraActive,
+    modelLoaded: modelStatus === "loaded",
+    poseDetected,
+    poseConfidence,
+  });
 
   const handleStopCamera = () => {
     if (recordingBusy) {
@@ -48,6 +57,7 @@ export default function App() {
     recorder.startRecording(settings, () => latestPoseRef.current, {
       cameraActive: isCameraActive,
       poseModelLoaded: modelStatus === "loaded",
+      poseReady,
     });
   };
 
@@ -82,6 +92,14 @@ export default function App() {
         />
 
         <div className="stack">
+          <WorkflowPanel
+            cameraActive={isCameraActive}
+            modelLoaded={modelStatus === "loaded"}
+            poseDetected={poseDetected}
+            poseConfidence={poseConfidence}
+            settings={settings}
+            summary={summary}
+          />
           <CollectionForm settings={settings} onChange={setSettings} disabled={recordingBusy} />
           <RecordingPanel
             settings={settings}
@@ -92,6 +110,8 @@ export default function App() {
             lastSummary={recorder.lastSummary}
             recordingError={recorder.recordingError}
             storageWarning={recorder.storageWarning}
+            canStartRecording={readyToRecord}
+            readinessMessage={readinessMessage}
             onStartRecording={handleStartRecording}
             onStopRecording={recorder.stopRecording}
             onDiscardLast={recorder.discardLastRecording}
@@ -106,4 +126,22 @@ export default function App() {
       </div>
     </main>
   );
+}
+
+function getReadinessMessage({
+  isCameraActive,
+  modelLoaded,
+  poseDetected,
+  poseConfidence,
+}: {
+  isCameraActive: boolean;
+  modelLoaded: boolean;
+  poseDetected: boolean;
+  poseConfidence: number;
+}): string {
+  if (!isCameraActive) return "Start the camera before recording.";
+  if (!modelLoaded) return "Wait for the pose model to load.";
+  if (!poseDetected) return "Move into frame until pose is detected.";
+  if (poseConfidence < 0.5) return "Pose confidence is low. Improve lighting or move farther back.";
+  return "Ready. Hold the selected posture and start recording.";
 }

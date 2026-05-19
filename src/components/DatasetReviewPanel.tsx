@@ -22,6 +22,10 @@ export function DatasetReviewPanel({ summary }: DatasetReviewPanelProps) {
         <Metric label="session_count" value={summary.session_count} />
       </div>
 
+      {summary.total_recordings === 0 && (
+        <p className="muted">No local recordings yet. Start with a 5 second good_posture pilot recording.</p>
+      )}
+
       <div className="split-grid">
         <CountList title="Label counts" counts={summary.label_counts} />
         <CountList title="Camera angle counts" counts={summary.camera_angle_counts} />

@@ -10,6 +10,8 @@ type RecordingPanelProps = {
   lastSummary: RecordingSummary | null;
   recordingError: string | null;
   storageWarning: string | null;
+  canStartRecording: boolean;
+  readinessMessage: string;
   onStartRecording: () => void;
   onStopRecording: () => void;
   onDiscardLast: () => void;
@@ -25,6 +27,8 @@ export function RecordingPanel({
   lastSummary,
   recordingError,
   storageWarning,
+  canStartRecording,
+  readinessMessage,
   onStartRecording,
   onStopRecording,
   onDiscardLast,
@@ -44,8 +48,10 @@ export function RecordingPanel({
 
       {countdown && <div className="countdown">{countdown}</div>}
 
+      <p className={canStartRecording ? "ready-text" : "warning-text"}>{readinessMessage}</p>
+
       <div className="button-row">
-        <button type="button" onClick={onStartRecording} disabled={isBusy}>
+        <button type="button" onClick={onStartRecording} disabled={isBusy || !canStartRecording}>
           Start Recording
         </button>
         <button type="button" className="secondary" onClick={onStopRecording} disabled={!isBusy}>
