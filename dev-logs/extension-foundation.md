@@ -20,7 +20,7 @@ Branch: `Aryan_Dev`
 ## Repository Cleanup
 
 - Moved all Chrome extension code into `extension/`.
-- Kept the root `src/` folder only for the existing project image asset.
+- Renamed the root image-only `src/` folder to `assets/images/` to avoid confusion with application source code.
 - Kept `data/`, `ml/`, and `models/` as separate project areas.
 - Added this `dev-logs/` folder so completed work can be tracked as the project grows.
 
