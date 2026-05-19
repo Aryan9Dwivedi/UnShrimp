@@ -1,14 +1,25 @@
-# Un Shrimp
-
-![Un Shrimp](src/flat,750x,075,f-pad,750x1000,f8f8f8.u27.jpg)
+<div align="center">
+  <h1>Un Shrimp</h1>
+  <p><strong>Chrome computer vision posture monitor for real-time seated posture feedback.</strong></p>
+  <img
+    src="src/flat,750x,075,f-pad,750x1000,f8f8f8.u27.jpg"
+    alt="Un Shrimp project image"
+    width="260"
+  />
+  <p>
+    <code>Chrome Extension</code> |
+    <code>Webcam Pose Estimation</code> |
+    <code>Posture Feedback</code>
+  </p>
+</div>
 
 ## About The Project
 
-UnShrimp is a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time. The goal is to build the best working deployed Chrome computer vision project for detecting sustained poor sitting posture and giving clear feedback to the user.
+UnShrimp is a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time. The goal is to build a strong deployed Chrome computer vision project that detects sustained poor sitting posture and gives clear feedback to the user.
 
-The first demo focuses only on the browser-based posture monitoring flow. The system should open a monitor page, use the webcam, run pose estimation locally, draw the body landmarks and skeleton, let the user calibrate normal sitting posture, detect sustained poor posture, and show useful feedback.
+The first demo focuses on the browser-based posture monitoring flow: open a monitor page, request webcam access, run pose estimation locally, draw body landmarks and a skeleton overlay, calibrate the user's normal sitting posture, detect sustained poor posture, and show useful feedback.
 
-## 1. Lock Final Demo Goal
+## Locked Final Demo Goal
 
 UnShrimp will be built as a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time.
 
@@ -24,45 +35,18 @@ The first demo should:
 8. Show posture status, posture score, and warning message.
 9. Alert only after bad posture continues for a few seconds.
 
-## 2. Lock Posture Classes
+## Locked Posture Classes
 
 Use only these posture states for the first demo:
 
-1. `good_posture`
-2. `shrimp_slouch`
-3. `forward_lean`
-4. `looking_down`
-5. `side_lean`
-6. `uncertain`
-
-Definitions:
-
-`good_posture`: User is sitting close to their calibrated normal posture.
-
-`shrimp_slouch`: User is hunched, rounded forward, or collapsed into a shrimp-like sitting posture.
-
-`forward_lean`: User is leaning toward the screen.
-
-`looking_down`: User head or face is angled downward toward keyboard, phone, or desk.
-
-`side_lean`: User is leaning left or right, or shoulders are visibly uneven.
-
-`uncertain`: Pose cannot be trusted because landmarks are missing, confidence is low, or the user is partially out of frame.
-
-## 3. Define Non-Goals
-
-For the first 15-day demo, do not build the following:
-
-1. Cloud inference
-2. User login
-3. Medical diagnosis
-4. Chrome Web Store publishing
-5. Mobile app support
-6. Raw image or video storage
-7. Complex dashboard
-8. Raw-image CNN training
-9. Backend dependency for real-time prediction
-10. Claims about treating or preventing back pain
+| Posture State | Definition |
+| --- | --- |
+| `good_posture` | User is sitting close to their calibrated normal posture. |
+| `shrimp_slouch` | User is hunched, rounded forward, or collapsed into a shrimp-like sitting posture. |
+| `forward_lean` | User is leaning toward the screen. |
+| `looking_down` | User head or face is angled downward toward keyboard, phone, or desk. |
+| `side_lean` | User is leaning left or right, or shoulders are visibly uneven. |
+| `uncertain` | Pose cannot be trusted because landmarks are missing, confidence is low, or the user is partially out of frame. |
 
 ## Git Workflow
 
