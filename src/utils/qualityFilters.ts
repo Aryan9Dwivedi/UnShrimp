@@ -1,4 +1,4 @@
-import { LANDMARK_INDEX } from "../constants/landmarks";
+import { LANDMARK_INDEX, TRAINING_LANDMARK_INDICES } from "../constants/landmarks";
 import type { DropReason, PoseLandmark } from "../types/dataset";
 import { getShoulderScale, hasInvalidLandmarkValues, hasValidScale } from "./landmarkNormalizer";
 
@@ -23,7 +23,7 @@ export function evaluateRawPoseQuality(
     return dropped("MISSING_SHOULDERS");
   }
 
-  if (!isVisible(landmarks[LANDMARK_INDEX.nose])) {
+  if (!hasReliableHeadSignal(landmarks)) {
     return dropped("MISSING_HEAD");
   }
 
@@ -39,7 +39,12 @@ export function evaluateRawPoseQuality(
 }
 
 export function evaluateNormalizedPoseQuality(landmarks: PoseLandmark[]): QualityResult {
-  if (landmarks.length !== 33 || hasInvalidLandmarkValues(landmarks)) {
+  const selectedTrainingLandmarks = TRAINING_LANDMARK_INDICES.map((index) => landmarks[index]);
+  if (
+    landmarks.length !== 33 ||
+    selectedTrainingLandmarks.some((landmark) => !landmark) ||
+    hasInvalidLandmarkValues(selectedTrainingLandmarks as PoseLandmark[])
+  ) {
     return dropped("INVALID_NORMALIZATION");
   }
 
@@ -55,4 +60,23 @@ function dropped(dropReason: DropReason): QualityResult {
 
 function isVisible(landmark: PoseLandmark | undefined): boolean {
   return Boolean(landmark && (landmark.visibility === undefined || landmark.visibility >= MIN_POSE_CONFIDENCE));
+}
+
+function hasReliableHeadSignal(landmarks: PoseLandmark[]): boolean {
+  const nose = landmarks[LANDMARK_INDEX.nose];
+  const leftEar = landmarks[LANDMARK_INDEX.left_ear];
+  const rightEar = landmarks[LANDMARK_INDEX.right_ear];
+  const faceLandmarks = [
+    LANDMARK_INDEX.left_eye_inner,
+    LANDMARK_INDEX.left_eye,
+    LANDMARK_INDEX.left_eye_outer,
+    LANDMARK_INDEX.right_eye_inner,
+    LANDMARK_INDEX.right_eye,
+    LANDMARK_INDEX.right_eye_outer,
+    LANDMARK_INDEX.mouth_left,
+    LANDMARK_INDEX.mouth_right,
+  ];
+  const reliableFaceCount = faceLandmarks.filter((index) => isVisible(landmarks[index])).length;
+
+  return isVisible(nose) || (isVisible(leftEar) && isVisible(rightEar)) || reliableFaceCount >= 2;
 }

@@ -36,13 +36,66 @@ export const LANDMARK_NAMES = [
 
 export const LANDMARK_INDEX = {
   nose: 0,
+  left_eye_inner: 1,
+  left_eye: 2,
+  left_eye_outer: 3,
+  right_eye_inner: 4,
+  right_eye: 5,
+  right_eye_outer: 6,
   left_ear: 7,
   right_ear: 8,
+  mouth_left: 9,
+  mouth_right: 10,
   left_shoulder: 11,
   right_shoulder: 12,
+  left_elbow: 13,
+  right_elbow: 14,
+  left_wrist: 15,
+  right_wrist: 16,
   left_hip: 23,
   right_hip: 24,
+  left_knee: 25,
+  right_knee: 26,
+  left_ankle: 27,
+  right_ankle: 28,
+  left_heel: 29,
+  right_heel: 30,
+  left_foot_index: 31,
+  right_foot_index: 32,
 } as const;
+
+export const TRAINING_LANDMARK_NAMES = [
+  "nose",
+  "left_eye_inner",
+  "left_eye",
+  "left_eye_outer",
+  "right_eye_inner",
+  "right_eye",
+  "right_eye_outer",
+  "left_ear",
+  "right_ear",
+  "mouth_left",
+  "mouth_right",
+  "left_shoulder",
+  "right_shoulder",
+] as const;
+
+export const TRAINING_LANDMARK_INDICES = TRAINING_LANDMARK_NAMES.map(
+  (name) => LANDMARK_INDEX[name],
+);
+
+export const FORBIDDEN_TRAINING_LANDMARK_NAMES = [
+  "left_hip",
+  "right_hip",
+  "left_knee",
+  "right_knee",
+  "left_ankle",
+  "right_ankle",
+  "left_heel",
+  "right_heel",
+  "left_foot_index",
+  "right_foot_index",
+] as const;
 
 export const POSE_CONNECTIONS: Array<[number, number]> = [
   [0, 7],

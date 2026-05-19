@@ -1,4 +1,5 @@
 import { CAMERA_ANGLES, POSTURE_LABELS } from "../constants/labels";
+import { FORBIDDEN_TRAINING_LANDMARK_NAMES, LANDMARK_INDEX, TRAINING_LANDMARK_NAMES } from "../constants/landmarks";
 import { CSV_COLUMNS, FEATURE_NAMES, SCHEMA_VERSION } from "../constants/schema";
 import type {
   CameraAngle,
@@ -101,6 +102,9 @@ export function summarizeDataset(recordings: Recording[]): DatasetSummary {
   if (totalValid + totalDropped > 0 && totalDropped / (totalValid + totalDropped) > 0.25) {
     warnings.push("Dropped sample rate is above 25%.");
   }
+  if (hasForbiddenTrainingColumns()) {
+    warnings.push("Training CSV contains forbidden lower-body columns.");
+  }
 
   return {
     total_recordings: recordings.length,
@@ -121,10 +125,11 @@ export function validateDataset(recordings: Recording[]): ValidationCheck[] {
   const labelCounts = summarizeDataset(recordings).label_counts;
   const invalidLabels = validSamples.filter((sample) => !POSTURE_LABELS.includes(sample.label));
   const manifest = buildManifest(recordings);
+  const requiredFeatureNames = FEATURE_NAMES as readonly string[];
 
   return [
     check(
-      "All required labels exist",
+      "All five labels represented",
       POSTURE_LABELS.every((label) => labelCounts[label] > 0),
       "Every posture label has at least one valid sample.",
       "Collect valid samples for every posture label.",
@@ -142,24 +147,38 @@ export function validateDataset(recordings: Recording[]): ValidationCheck[] {
       `${invalidLabels.length} valid samples contain labels outside the fixed list.`,
     ),
     sampleCheck(
-      "Valid samples have 33 raw landmarks",
+      "Valid samples keep all 33 raw landmarks",
       validSamples.length,
       validSamples.every((sample) => sample.raw_landmarks.length === 33),
       "All valid samples include 33 raw landmarks.",
       "Some valid samples do not include the full MediaPipe landmark set.",
     ),
     sampleCheck(
-      "Valid samples have 33 normalized landmarks",
+      "Valid samples keep all 33 normalized landmarks",
       validSamples.length,
       validSamples.every((sample) => sample.normalized_landmarks.length === 33),
       "All valid samples include 33 normalized landmarks.",
       "Some valid samples do not include the full normalized landmark set.",
     ),
     sampleCheck(
-      "Feature values are finite or allowed null",
+      "Training landmarks are upper-body only",
+      validSamples.length,
+      validSamples.every(hasValidTrainingLandmarks),
+      "Every valid sample includes the selected upper-body training landmarks.",
+      "Some valid samples are missing selected upper-body training landmarks.",
+    ),
+    sampleCheck(
+      "Required feature columns exist",
+      validSamples.length,
+      validSamples.every((sample) => requiredFeatureNames.every((name) => name in sample.features)),
+      "Every valid sample includes all required v1 posture features.",
+      "Some valid samples are missing v1 posture features.",
+    ),
+    sampleCheck(
+      "Feature values are finite numbers",
       validSamples.length,
       validSamples.every((sample) => featuresAreValid(sample.features)),
-      "All feature values are finite, except allowed hip/torso nulls.",
+      "All v1 feature values are finite numbers.",
       "Feature data contains invalid values.",
     ),
     sampleCheck(
@@ -178,12 +197,23 @@ export function validateDataset(recordings: Recording[]): ValidationCheck[] {
     ),
     check(
       "CSV export has fixed columns",
-      CSV_COLUMNS.length === 155 &&
+      CSV_COLUMNS.length === 77 &&
         CSV_COLUMNS[0] === "sample_id" &&
-        CSV_COLUMNS[CSV_COLUMNS.length - 1] === "side_lean_proxy",
+        CSV_COLUMNS[CSV_COLUMNS.length - 1] === "upper_body_confidence",
       "CSV columns are deterministic and fixed.",
       "CSV column configuration is not the expected fixed schema.",
     ),
+    check(
+      "Training CSV excludes lower-body columns",
+      !hasForbiddenTrainingColumns(),
+      "No hip, knee, ankle, heel, or foot columns are in the v1 training CSV.",
+      "Forbidden lower-body columns are present in the v1 training CSV.",
+    ),
+    {
+      name: "Hips and legs are not required",
+      status: "PASS",
+      message: "Valid sample checks use head, face, shoulders, and upper-body landmarks only.",
+    },
     {
       name: "JSON export has schema_version",
       status: SCHEMA_VERSION ? "PASS" : "FAIL",
@@ -191,9 +221,11 @@ export function validateDataset(recordings: Recording[]): ValidationCheck[] {
     },
     check(
       "Manifest export has label counts",
-      POSTURE_LABELS.every((label) => Object.prototype.hasOwnProperty.call(manifest.label_counts, label)),
-      "Manifest includes label counts for every fixed label.",
-      "Manifest label counts are incomplete.",
+      POSTURE_LABELS.every((label) => Object.prototype.hasOwnProperty.call(manifest.label_counts, label)) &&
+        manifest.training_landmarks.length === TRAINING_LANDMARK_NAMES.length &&
+        manifest.forbidden_columns_excluded,
+      "Manifest includes label counts, training landmarks, and forbidden_columns_excluded.",
+      "Manifest is missing label counts or v1 schema metadata.",
     ),
     {
       name: "Train CSV can be generated by prepare script",
@@ -233,15 +265,7 @@ function sampleCheck(
 }
 
 function featuresAreValid(features: PostureFeatures): boolean {
-  return (Object.entries(features) as Array<[keyof PostureFeatures, number | null]>).every(([key, value]) => {
-    if (
-      (key === "hip_midpoint_x" || key === "hip_midpoint_y" || key === "torso_lean_proxy") &&
-      value === null
-    ) {
-      return true;
-    }
-    return typeof value === "number" && Number.isFinite(value);
-  });
+  return (Object.values(features) as number[]).every((value) => typeof value === "number" && Number.isFinite(value));
 }
 
 function isImbalanced(nonZeroCounts: number[]): boolean {
@@ -251,4 +275,48 @@ function isImbalanced(nonZeroCounts: number[]): boolean {
   const min = Math.min(...nonZeroCounts);
   const max = Math.max(...nonZeroCounts);
   return min > 0 && max / min > 2.5;
+}
+
+function hasForbiddenTrainingColumns(): boolean {
+  return CSV_COLUMNS.some((column) =>
+    (FORBIDDEN_TRAINING_LANDMARK_NAMES as readonly string[]).some((name) => column.startsWith(`${name}_`)),
+  );
+}
+
+function hasValidTrainingLandmarks(sample: Recording["samples"][number]): boolean {
+  const trainingLandmarks = sample.training_landmarks ?? [];
+  const names = trainingLandmarks.map((landmark) => landmark.name);
+  return (
+    trainingLandmarks.length === TRAINING_LANDMARK_NAMES.length &&
+    TRAINING_LANDMARK_NAMES.every((name) => names.includes(name)) &&
+    trainingLandmarks.every(
+      (landmark) =>
+        Number.isFinite(landmark.x) &&
+        Number.isFinite(landmark.y) &&
+        Number.isFinite(landmark.z) &&
+        (landmark.visibility === undefined || Number.isFinite(landmark.visibility)),
+    ) &&
+    Boolean(sample.raw_landmarks[LANDMARK_INDEX.left_shoulder]) &&
+    Boolean(sample.raw_landmarks[LANDMARK_INDEX.right_shoulder]) &&
+    hasHeadSignal(sample.raw_landmarks)
+  );
+}
+
+function hasHeadSignal(landmarks: Recording["samples"][number]["raw_landmarks"]): boolean {
+  const nose = landmarks[LANDMARK_INDEX.nose];
+  const leftEar = landmarks[LANDMARK_INDEX.left_ear];
+  const rightEar = landmarks[LANDMARK_INDEX.right_ear];
+  const faceIndexes = [
+    LANDMARK_INDEX.left_eye_inner,
+    LANDMARK_INDEX.left_eye,
+    LANDMARK_INDEX.left_eye_outer,
+    LANDMARK_INDEX.right_eye_inner,
+    LANDMARK_INDEX.right_eye,
+    LANDMARK_INDEX.right_eye_outer,
+    LANDMARK_INDEX.mouth_left,
+    LANDMARK_INDEX.mouth_right,
+  ];
+  const faceCount = faceIndexes.filter((index) => landmarks[index]).length;
+
+  return Boolean(nose || (leftEar && rightEar) || faceCount >= 2);
 }

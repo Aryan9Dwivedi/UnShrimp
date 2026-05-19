@@ -1,4 +1,5 @@
 import { CAMERA_ANGLES, POSTURE_LABELS } from "../constants/labels";
+import { TRAINING_LANDMARK_NAMES } from "../constants/landmarks";
 import { CSV_COLUMNS, DATASET_VERSION, FEATURE_NAMES, SCHEMA_VERSION } from "../constants/schema";
 import type { CameraAngle, PostureLabel, Recording } from "../types/dataset";
 
@@ -13,8 +14,10 @@ export type DatasetManifest = {
   session_count: number;
   label_counts: Record<PostureLabel, number>;
   camera_angle_counts: Record<CameraAngle, number>;
+  training_landmarks: string[];
   feature_names: string[];
   csv_columns: string[];
+  forbidden_columns_excluded: boolean;
 };
 
 export function buildManifest(recordings: Recording[]): DatasetManifest {
@@ -45,8 +48,10 @@ export function buildManifest(recordings: Recording[]): DatasetManifest {
     session_count: new Set(recordings.map((recording) => recording.session_id)).size,
     label_counts,
     camera_angle_counts,
+    training_landmarks: [...TRAINING_LANDMARK_NAMES],
     feature_names: [...FEATURE_NAMES],
     csv_columns: [...CSV_COLUMNS],
+    forbidden_columns_excluded: true,
   };
 }
 

@@ -131,6 +131,7 @@ The DataTool stores only numeric dataset records:
 - Timestamp
 - Raw MediaPipe landmarks
 - Normalized landmarks
+- Selected upper-body v1 training landmarks
 - Engineered posture features
 - Pose confidence
 - Quality status
@@ -187,7 +188,25 @@ Not required:
 - Feet
 - Full-body standing view
 
-The hips are useful for torso-lean features, but they are optional because many normal laptop webcam setups only capture seated upper-body posture.
+The hips are useful for debugging and future experiments when visible, but they are optional because many normal laptop webcam setups only capture seated upper-body posture.
+
+## V1 Training CSV Design
+
+The full raw JSON keeps all 33 MediaPipe landmarks for debugging and future use.
+
+The main v1 training CSV is intentionally upper-body-only. It uses:
+
+- nose
+- eye landmarks
+- ear landmarks
+- mouth landmarks
+- left shoulder
+- right shoulder
+- engineered upper-body posture features
+
+It does not include hips, knees, ankles, heels, feet, wrists, hands, or generic `x_0,y_0,z_0` all-landmark columns.
+
+The train/validation/test split is not created by the browser export. After exporting raw JSON, run `prepare_dataset.py`; that script creates `train.csv`, `val.csv`, `test.csv`, and `dataset_report.json`.
 
 ## Labels
 
@@ -214,20 +233,20 @@ Run this before collecting the full dataset:
 2. Collect `P001`, `S001`, `front`, `shrimp_slouch`, `10` seconds.
 3. Click `Export All Files`.
 4. Confirm the browser downloads raw JSON, training CSV, and manifest files.
-5. Move the downloaded `*_raw.json` file into `ml/data/raw/`.
+5. Move `unshrimp_dataset_raw.json` into `ml/data/raw/`.
 7. Run the validation script.
 8. Run the preparation script.
 9. Confirm processed files are created in `ml/data/processed/`.
 
 ## Exported Files
 
-The app downloads timestamped files like:
+The app downloads:
 
-- `unshrimp_dataset_YYYYMMDDTHHMMSSZ_raw.json`
-- `unshrimp_dataset_YYYYMMDDTHHMMSSZ_train.csv`
-- `unshrimp_dataset_YYYYMMDDTHHMMSSZ_manifest.json`
+- `unshrimp_dataset_raw.json`
+- `unshrimp_dataset_train.csv`
+- `unshrimp_dataset_manifest.json`
 
-The full JSON includes valid and dropped numeric samples. The training CSV includes only valid samples with fixed deterministic columns.
+The full JSON includes valid and dropped numeric samples and all 33 landmarks. The training CSV includes only valid samples with fixed deterministic upper-body v1 columns.
 
 ## Validate Dataset
 

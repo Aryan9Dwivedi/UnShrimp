@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LANDMARK_NAMES } from "../constants/landmarks";
+import { LANDMARK_NAMES, TRAINING_LANDMARK_INDICES } from "../constants/landmarks";
 import type {
   CollectionSettings,
   DropReason,
@@ -253,6 +253,8 @@ function createPoseSample({
   }
 
   const qualityStatus = dropReason ? "dropped" : "valid";
+  const trainingLandmarks =
+    qualityStatus === "valid" ? TRAINING_LANDMARK_INDICES.map((index) => normalizedLandmarks[index]) : [];
   const features =
     qualityStatus === "valid"
       ? extractPostureFeatures(normalizedLandmarks, poseConfidence)
@@ -271,6 +273,7 @@ function createPoseSample({
     drop_reason: dropReason,
     raw_landmarks: rawLandmarks,
     normalized_landmarks: normalizedLandmarks,
+    training_landmarks: trainingLandmarks,
     features,
   };
 }
@@ -278,20 +281,21 @@ function createPoseSample({
 function emptyFeatures(poseConfidence: number): PostureFeatures {
   return {
     shoulder_slope: 0,
-    shoulder_width: 0,
     head_center_x: 0,
     head_center_y: 0,
+    head_center_z: 0,
     shoulder_midpoint_x: 0,
     shoulder_midpoint_y: 0,
-    hip_midpoint_x: null,
-    hip_midpoint_y: null,
+    shoulder_midpoint_z: 0,
     head_to_shoulder_x_offset: 0,
     head_to_shoulder_y_offset: 0,
+    head_to_shoulder_z_offset: 0,
     nose_to_shoulder_y_offset: 0,
-    torso_lean_proxy: null,
+    nose_to_shoulder_z_offset: 0,
+    face_tilt_proxy: 0,
     head_drop_proxy: 0,
     side_lean_proxy: 0,
-    pose_confidence: poseConfidence,
+    upper_body_confidence: poseConfidence,
   };
 }
 

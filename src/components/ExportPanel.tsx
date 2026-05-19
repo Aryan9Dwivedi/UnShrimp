@@ -8,10 +8,9 @@ export function ExportPanel({ recordings }: { recordings: Recording[] }) {
   const droppedSamples = recordings.reduce((sum, recording) => sum + recording.dropped_sample_count, 0);
   const hasRecordings = recordings.length > 0;
   const hasValidSamples = validSamples > 0;
-  const prefix = buildExportPrefix();
-  const exportRaw = () => downloadText(`${prefix}_raw.json`, buildDatasetJsonText(recordings));
-  const exportCsv = () => downloadText(`${prefix}_train.csv`, buildTrainingCsv(recordings));
-  const exportManifest = () => downloadText(`${prefix}_manifest.json`, buildManifestText(recordings));
+  const exportRaw = () => downloadText("unshrimp_dataset_raw.json", buildDatasetJsonText(recordings));
+  const exportCsv = () => downloadText("unshrimp_dataset_train.csv", buildTrainingCsv(recordings));
+  const exportManifest = () => downloadText("unshrimp_dataset_manifest.json", buildManifestText(recordings));
   const exportAll = () => {
     exportRaw();
     if (hasValidSamples) {
@@ -51,8 +50,8 @@ export function ExportPanel({ recordings }: { recordings: Recording[] }) {
       </div>
 
       <p className="muted">
-        Export All downloads raw JSON, training CSV, and manifest with a timestamped filename. Put the raw JSON in
-        ml/data/raw before running the Python validation script.
+        Export All downloads raw JSON, upper-body v1 training CSV, and manifest. Put the raw JSON in ml/data/raw before
+        running the Python validation script.
       </p>
       {!hasValidSamples && <p className="warning-text">Training CSV is disabled until at least one valid sample exists.</p>}
     </section>
@@ -78,9 +77,4 @@ function downloadText(filename: string, text: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-}
-
-function buildExportPrefix(): string {
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-  return `unshrimp_dataset_${stamp}`;
 }

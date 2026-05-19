@@ -15,21 +15,52 @@ POSTURE_LABELS = {
     "side_lean",
 }
 
+TRAINING_LANDMARKS = [
+    "nose",
+    "left_eye_inner",
+    "left_eye",
+    "left_eye_outer",
+    "right_eye_inner",
+    "right_eye",
+    "right_eye_outer",
+    "left_ear",
+    "right_ear",
+    "mouth_left",
+    "mouth_right",
+    "left_shoulder",
+    "right_shoulder",
+]
+
 FEATURE_NAMES = [
     "shoulder_slope",
-    "shoulder_width",
     "head_center_x",
     "head_center_y",
+    "head_center_z",
     "shoulder_midpoint_x",
     "shoulder_midpoint_y",
-    "hip_midpoint_x",
-    "hip_midpoint_y",
+    "shoulder_midpoint_z",
     "head_to_shoulder_x_offset",
     "head_to_shoulder_y_offset",
+    "head_to_shoulder_z_offset",
     "nose_to_shoulder_y_offset",
-    "torso_lean_proxy",
+    "nose_to_shoulder_z_offset",
+    "face_tilt_proxy",
     "head_drop_proxy",
     "side_lean_proxy",
+    "upper_body_confidence",
+]
+
+FORBIDDEN_COLUMN_PREFIXES = [
+    "left_hip_",
+    "right_hip_",
+    "left_knee_",
+    "right_knee_",
+    "left_ankle_",
+    "right_ankle_",
+    "left_heel_",
+    "right_heel_",
+    "left_foot_index_",
+    "right_foot_index_",
 ]
 
 CSV_COLUMNS = [
@@ -44,14 +75,14 @@ CSV_COLUMNS = [
     "quality_status",
 ]
 
-for index in range(33):
-    CSV_COLUMNS.extend([f"x_{index}", f"y_{index}", f"z_{index}", f"v_{index}"])
+for name in TRAINING_LANDMARKS:
+    CSV_COLUMNS.extend([f"{name}_x", f"{name}_y", f"{name}_z", f"{name}_v"])
 
 CSV_COLUMNS.extend(FEATURE_NAMES)
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Prepare UnShrimp exported JSON into train/val/test CSV files.")
+    parser = argparse.ArgumentParser(description="Prepare UnShrimp raw JSON into upper-body v1 train/val/test CSV files.")
     parser.add_argument("--input", required=True, help="Path to unshrimp_dataset_raw.json")
     parser.add_argument("--output", required=True, help="Output folder for processed CSV files")
     args = parser.parse_args()
@@ -61,7 +92,7 @@ def main() -> int:
 
     rows, dropped_bad_rows = collect_rows(dataset)
     if not rows:
-        raise SystemExit("No valid finite rows found. Export more valid samples before preparing data.")
+        raise SystemExit("No valid finite upper-body rows found. Re-export data with the v1 DataTool schema.")
 
     label_counts = Counter(row["label"] for row in rows)
     person_counts = Counter(row["person_id"] for row in rows)
@@ -76,7 +107,9 @@ def main() -> int:
 
     train_rows, val_rows, test_rows, strategy, warnings = split_rows(rows)
     if dropped_bad_rows:
-        warnings.append(f"Removed {dropped_bad_rows} valid-labeled rows because they contained invalid values.")
+        warnings.append(f"Removed {dropped_bad_rows} valid-labeled rows because they failed v1 training schema checks.")
+    if has_forbidden_columns(CSV_COLUMNS):
+        raise SystemExit("Forbidden lower-body columns are present in CSV_COLUMNS.")
 
     os.makedirs(args.output, exist_ok=True)
     write_csv(os.path.join(args.output, "train.csv"), train_rows)
@@ -93,8 +126,11 @@ def main() -> int:
         "label_counts": dict(label_counts),
         "person_counts": dict(person_counts),
         "session_counts": dict(session_counts),
-        "warnings": warnings,
+        "training_landmarks": TRAINING_LANDMARKS,
+        "feature_names": FEATURE_NAMES,
         "csv_columns": CSV_COLUMNS,
+        "forbidden_columns_excluded": True,
+        "warnings": warnings,
     }
     with open(os.path.join(args.output, "dataset_report.json"), "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=2)
@@ -129,47 +165,62 @@ def flatten_sample(sample: Dict[str, Any]) -> Dict[str, Any]:
     if label not in POSTURE_LABELS:
         raise ValueError(f"Invalid label: {label}")
 
-    normalized_landmarks = sample.get("normalized_landmarks", [])
-    if len(normalized_landmarks) != 33:
-        raise ValueError("Expected 33 normalized landmarks.")
+    normalized_by_name = landmarks_by_name(sample.get("training_landmarks") or sample.get("normalized_landmarks", []))
+    if not all(name in normalized_by_name for name in TRAINING_LANDMARKS):
+        raise ValueError("Missing selected upper-body training landmarks.")
 
     row: Dict[str, Any] = {
-        "sample_id": sample.get("sample_id", ""),
-        "recording_id": sample.get("recording_id", ""),
-        "person_id": sample.get("person_id", ""),
-        "session_id": sample.get("session_id", ""),
-        "camera_angle": sample.get("camera_angle", ""),
+        "sample_id": required_text(sample, "sample_id"),
+        "recording_id": required_text(sample, "recording_id"),
+        "person_id": required_text(sample, "person_id"),
+        "session_id": required_text(sample, "session_id"),
+        "camera_angle": required_text(sample, "camera_angle"),
         "label": label,
-        "timestamp_ms": sample.get("timestamp_ms", ""),
-        "pose_confidence": sample.get("pose_confidence", ""),
-        "quality_status": sample.get("quality_status", ""),
+        "timestamp_ms": sample.get("timestamp_ms"),
+        "pose_confidence": sample.get("pose_confidence"),
+        "quality_status": sample.get("quality_status"),
     }
 
-    for index, landmark in enumerate(normalized_landmarks):
-        row[f"x_{index}"] = landmark.get("x")
-        row[f"y_{index}"] = landmark.get("y")
-        row[f"z_{index}"] = landmark.get("z")
-        row[f"v_{index}"] = landmark.get("visibility", "")
+    for name in TRAINING_LANDMARKS:
+        landmark = normalized_by_name[name]
+        row[f"{name}_x"] = landmark.get("x")
+        row[f"{name}_y"] = landmark.get("y")
+        row[f"{name}_z"] = landmark.get("z")
+        row[f"{name}_v"] = landmark.get("visibility", 1)
 
     features = sample.get("features", {})
     for feature_name in FEATURE_NAMES:
-        row[feature_name] = features.get(feature_name, "")
+        row[feature_name] = features.get(feature_name)
 
     if list(row.keys()) != CSV_COLUMNS:
         raise ValueError("Fixed CSV columns do not match.")
+    if has_forbidden_columns(row.keys()):
+        raise ValueError("Forbidden lower-body column present.")
 
     for column in CSV_COLUMNS:
         if column in {"sample_id", "recording_id", "person_id", "session_id", "camera_angle", "label", "quality_status"}:
+            if row[column] in {"", None}:
+                raise ValueError(f"Column {column} is empty.")
             continue
-        value = row[column]
-        if value == "" and column.startswith("v_"):
-            continue
-        if value in {"", None} and column in {"hip_midpoint_x", "hip_midpoint_y", "torso_lean_proxy"}:
-            continue
-        if not is_finite_number(value):
+        if row[column] in {"", None} or not is_finite_number(row[column]):
             raise ValueError(f"Column {column} is not finite.")
 
     return row
+
+
+def landmarks_by_name(landmarks: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    return {
+        landmark.get("name"): landmark
+        for landmark in landmarks
+        if isinstance(landmark, dict) and isinstance(landmark.get("name"), str)
+    }
+
+
+def required_text(sample: Dict[str, Any], key: str) -> str:
+    value = sample.get(key)
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"Missing required field {key}.")
+    return value
 
 
 def split_rows(rows: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]], str, List[str]]:
@@ -233,6 +284,10 @@ def write_csv(path: str, rows: List[Dict[str, Any]]) -> None:
 def print_counts(counter: Counter) -> None:
     for key, value in sorted(counter.items()):
         print(f"  {key}: {value}")
+
+
+def has_forbidden_columns(columns: Iterable[str]) -> bool:
+    return any(any(column.startswith(prefix) for prefix in FORBIDDEN_COLUMN_PREFIXES) for column in columns)
 
 
 def is_finite_number(value: Any) -> bool:

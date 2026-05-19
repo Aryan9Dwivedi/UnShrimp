@@ -28,20 +28,21 @@ export type PoseLandmark = {
 
 export type PostureFeatures = {
   shoulder_slope: number;
-  shoulder_width: number;
   head_center_x: number;
   head_center_y: number;
+  head_center_z: number;
   shoulder_midpoint_x: number;
   shoulder_midpoint_y: number;
-  hip_midpoint_x: number | null;
-  hip_midpoint_y: number | null;
+  shoulder_midpoint_z: number;
   head_to_shoulder_x_offset: number;
   head_to_shoulder_y_offset: number;
+  head_to_shoulder_z_offset: number;
   nose_to_shoulder_y_offset: number;
-  torso_lean_proxy: number | null;
+  nose_to_shoulder_z_offset: number;
+  face_tilt_proxy: number;
   head_drop_proxy: number;
   side_lean_proxy: number;
-  pose_confidence: number;
+  upper_body_confidence: number;
 };
 
 export type PoseSample = {
@@ -57,6 +58,7 @@ export type PoseSample = {
   drop_reason?: DropReason;
   raw_landmarks: PoseLandmark[];
   normalized_landmarks: PoseLandmark[];
+  training_landmarks: PoseLandmark[];
   features: PostureFeatures;
 };
 

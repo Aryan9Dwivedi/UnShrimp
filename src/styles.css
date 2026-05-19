@@ -354,8 +354,8 @@ td {
 
 .summary-box dl {
   display: grid;
-  gap: 8px 12px;
-  grid-template-columns: minmax(130px, 0.5fr) minmax(0, 1fr);
+  gap: 8px 24px;
+  grid-template-columns: minmax(220px, max-content) minmax(0, 1fr);
   margin: 12px 0 0;
 }
 
@@ -366,6 +366,8 @@ td {
 
 .summary-box dd {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .error-text,
@@ -529,5 +531,9 @@ li {
 
   .camera-frame {
     min-height: 220px;
+  }
+
+  .summary-box dl {
+    grid-template-columns: 1fr;
   }
 }

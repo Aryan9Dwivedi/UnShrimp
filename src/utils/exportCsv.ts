@@ -1,4 +1,5 @@
 import { CSV_COLUMNS, FEATURE_NAMES } from "../constants/schema";
+import { TRAINING_LANDMARK_NAMES } from "../constants/landmarks";
 import type { PoseSample, Recording } from "../types/dataset";
 
 export function getTrainingCsvColumns(): string[] {
@@ -32,22 +33,25 @@ function valueForColumn(sample: PoseSample, column: string): string | number {
     return sample[column as keyof PoseSample] as string | number;
   }
 
-  const landmarkMatch = column.match(/^([xyzv])_(\d+)$/);
+  const landmarkMatch = column.match(/^(.+)_(x|y|z|v)$/);
   if (landmarkMatch) {
-    const [, axis, indexText] = landmarkMatch;
-    const landmark = sample.normalized_landmarks[Number(indexText)];
+    const [, landmarkName, axis] = landmarkMatch;
+    if (!(TRAINING_LANDMARK_NAMES as readonly string[]).includes(landmarkName)) {
+      return 0;
+    }
+    const landmark = sample.training_landmarks?.find((item) => item.name === landmarkName);
     if (!landmark) {
-      return "";
+      return 0;
     }
     if (axis === "v") {
-      return landmark.visibility ?? "";
+      return landmark.visibility ?? 1;
     }
     return landmark[axis as "x" | "y" | "z"];
   }
 
   if ((FEATURE_NAMES as readonly string[]).includes(column)) {
     const value = sample.features[column as keyof typeof sample.features];
-    return value ?? "";
+    return typeof value === "number" && Number.isFinite(value) ? value : 0;
   }
 
   return "";
