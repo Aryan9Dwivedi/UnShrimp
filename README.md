@@ -19,6 +19,20 @@ UnShrimp is a locally running Chrome extension that uses the laptop webcam to mo
 
 The first demo focuses on the browser-based posture monitoring flow: open a monitor page, request webcam access, run pose estimation locally, draw body landmarks and a skeleton overlay, calibrate the user's normal sitting posture, detect sustained poor posture, and show useful feedback.
 
+## Seated Posture Scope
+
+UnShrimp is for seated desk posture while someone is working on a laptop or desktop. The project is not trying to classify standing posture, full-body pose, exercise form, or medical posture conditions.
+
+For data collection and the final demo, the camera should focus on seated upper-body posture:
+
+| Framing Need | Rule |
+| --- | --- |
+| Required | Head, face or nose area, both shoulders, and upper torso should be visible. |
+| Recommended | Waist or hip line should be visible if the laptop camera naturally captures it. |
+| Not Required | Legs, knees, ankles, feet, or full-body standing view. |
+
+This keeps the dataset realistic for normal webcam use. Hip landmarks are useful when visible, but they are optional because many real seated laptop setups only show the upper body.
+
 ## Locked Final Demo Goal
 
 UnShrimp will be built as a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time.
