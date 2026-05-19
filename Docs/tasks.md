@@ -9,7 +9,7 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 | Priority | Batch | Step | Task | Purpose / Need | Done When | Status |
 | --- | --- | ---: | --- | --- | --- | --- |
 | P0 | Scope Lock | 1 | Lock final demo goal | Define UnShrimp as a Chrome extension that monitors seated posture using webcam-based pose estimation and gives real-time feedback. Keeps the project focused. | Team agrees on one clear demo goal. | Done |
-| P0 | Scope Lock | 2 | Lock posture classes | Use only: good posture, shrimp/slouch, forward lean, looking down, side lean. Prevents vague labels and messy logic. | Labels are fixed in README, UI, data collection, and model code. | Done |
+| P0 | Scope Lock | 2 | Lock posture classes | Use only: good posture, shrimp/slouch, forward lean, and looking down for v1. Keep uncertain only as a low-confidence system state. Prevents vague labels and messy logic. | Labels are fixed in README, UI, data collection, and model code. | Done |
 | P0 | Scope Lock | 3 | Define non-goals | Exclude cloud inference, login, medical diagnosis, full Web Store release, mobile app, raw video storage, and complex dashboard. Prevents overbuilding. | Non-goals are written in README. | Done |
 | P0 | Repo Setup | 4 | Create final repo structure | Separate extension code, ML code, docs, datasets, and model files. Keeps work organized. | Repo has clear folders for extension, ML, docs, data, and models. | Done |
 | P0 | Repo Setup | 5 | Add project README | Explain project name, goal, MVP scope, tech stack, setup, team roles, and demo target. | Anyone can understand the repo in under 2 minutes. | Done |
@@ -27,7 +27,7 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 | P0 | Landmark Processing | 17 | Select key posture landmarks | Use nose, ears, shoulders, hips, and optional face points/elbows. Focuses posture logic. | Helper function returns key landmarks safely. | Not Started |
 | P0 | Landmark Processing | 18 | Add landmark visibility filtering | Ignore frames where key landmarks are missing or low confidence. Prevents false posture alerts. | Low-quality frames return uncertain state, not wrong labels. | Not Started |
 | P0 | Landmark Processing | 19 | Normalize landmarks | Center body using shoulder/hip midpoint and scale using shoulder width or torso length. Makes data less camera-distance dependent. | Normalized landmarks are generated every frame. | Not Started |
-| P0 | Landmark Processing | 20 | Build posture feature extraction | Compute shoulder slope, head offset, torso alignment, head drop, side lean, confidence score, and other useful features. | Each frame outputs a posture feature vector. | Not Started |
+| P0 | Landmark Processing | 20 | Build posture feature extraction | Compute shoulder slope, head offset, torso alignment, head drop, upper-body confidence score, and other useful features. | Each frame outputs a posture feature vector. | Not Started |
 | P0 | Calibration | 21 | Build 5-second calibration flow | User sits straight and system records baseline good posture. Personalizes detection. | Calibration records and saves a baseline. | Not Started |
 | P0 | Calibration | 22 | Save baseline posture features | Store baseline head position, shoulder slope, torso alignment, head-to-shoulder offset, and confidence. | Current posture can be compared against baseline. | Not Started |
 | P0 | Calibration | 23 | Add recalibration option | Let user reset baseline if camera/chair changes. | Recalibrate button replaces old baseline. | Not Started |
@@ -35,20 +35,20 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 | P0 | Rule-Based Detection | 25 | Build shrimp/slouch detection | Detect collapsed posture using head/shoulder/torso deviation from baseline. Core UnShrimp behavior. | Obvious slouching triggers shrimp/slouch state. | Not Started |
 | P0 | Rule-Based Detection | 26 | Build forward lean detection | Detect user leaning toward the screen. Important and demo-friendly. | Leaning forward changes state correctly. | Not Started |
 | P0 | Rule-Based Detection | 27 | Build looking down detection | Detect neck/head downward posture using nose/ear/shoulder relationship. | Looking down is detected separately from slouching. | Not Started |
-| P0 | Rule-Based Detection | 28 | Build side lean detection | Detect uneven shoulders or lateral body shift. Adds multi-posture capability. | Leaning left/right triggers side lean warning. | Not Started |
+| P0 | Rule-Based Detection | 28 | Remove side lean from v1 scope | Do not collect or classify side lean as a v1 posture label. Shoulder slope can remain as a feature, but not as a user-facing class. | README, DataTool labels, validation, and training prep use the four v1 labels only. | Done |
 | P0 | Rule-Based Detection | 29 | Add uncertain state | Return uncertain when pose is unclear, person is out of frame, or confidence is low. | UI shows Pose Unclear instead of wrong classification. | Not Started |
 | P0 | Smoothing and Alerts | 30 | Add prediction buffer | Store recent frame predictions over a window, for example 10 to 15 seconds. | Recent predictions are available for smoothing. | Not Started |
 | P0 | Smoothing and Alerts | 31 | Add majority-vote smoothing | Use recent predictions instead of one frame to decide final posture. | UI does not flicker rapidly between labels. | Not Started |
 | P0 | Smoothing and Alerts | 32 | Add sustained bad posture alert | Alert only after bad posture persists for 10 to 15 seconds. | Temporary movement does not trigger alert. | Not Started |
 | P0 | Smoothing and Alerts | 33 | Add alert cooldown | Prevent repeated annoying alerts. | Alerts do not spam the user. | Not Started |
-| P0 | UI Feedback | 34 | Build live posture status display | Show current status: good, shrimp, forward lean, looking down, side lean, or unclear. | Status updates live and matches user behavior. | Not Started |
+| P0 | UI Feedback | 34 | Build live posture status display | Show current status: good, shrimp, forward lean, looking down, or unclear. | Status updates live and matches user behavior. | Not Started |
 | P0 | UI Feedback | 35 | Build posture score | Show score from 0 to 100 based on deviation from baseline. | Score drops when posture worsens and improves when corrected. | Not Started |
 | P0 | UI Feedback | 36 | Build explanation messages | Give specific feedback like "You are leaning forward" or "Shrimp posture detected." | Each posture class has a clear correction message. | Not Started |
 | P0 | UI Feedback | 37 | Add privacy message | State that frames are processed locally and images/videos are not stored. Important for webcam trust. | Privacy message appears in UI or onboarding. | Not Started |
 | P1 | Data Collection | 38 | Build developer data collection panel | Add label dropdown, camera angle dropdown, start/stop recording, export, and clear session. | Team can record labeled landmark data from extension. | Not Started |
-| P1 | Data Collection | 39 | Define dataset labels | Use good, shrimp_slouch, forward_lean, looking_down, side_lean, and optional uncertain. | Labels are constants in code and docs. | Not Started |
+| P1 | Data Collection | 39 | Define dataset labels | Use exactly good_posture, shrimp_slouch, forward_lean, and looking_down for data collection. Do not collect side_lean as a v1 label. | Labels are constants in code and docs. | Done |
 | P1 | Data Collection | 40 | Define metadata fields | Save sample ID, session ID, person ID, timestamp, label, camera angle, landmarks, normalized landmarks, features, confidence. | Every exported sample has complete metadata. | Not Started |
-| P1 | Data Collection | 41 | Collect from multiple people | Collect from at least 5 people, 4 to 5 labels, 2 to 3 camera angles, 15 to 30 seconds per label. | Dataset includes multiple person IDs and labels. | Not Started |
+| P1 | Data Collection | 41 | Collect from multiple people | Collect from at least 5 people, 4 labels, 2 to 3 camera angles, 15 to 30 seconds per label. | Dataset includes multiple person IDs and labels. | Not Started |
 | P1 | Data Collection | 42 | Collect multiple camera angles | Capture front, slight left/right, and side if possible. Improves robustness. | Dataset includes at least front and angled views. | Not Started |
 | P1 | Data Collection | 43 | Export dataset as JSON and CSV | JSON preserves nested landmarks. CSV supports model training. | Exported files load correctly in Python. | Not Started |
 | P1 | Dataset Cleaning | 44 | Remove low-confidence frames | Filter frames with missing shoulders, head, hips, or low confidence. | Clean dataset has noisy samples removed. | Not Started |
@@ -64,14 +64,14 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 | P1 | Hybrid System | 54 | Combine rule output and NN output | NN predicts good/bad. Rules provide specific reason. | Final state uses both model and rule results. | Not Started |
 | P1 | Hybrid System | 55 | Add confidence scoring | Combine MediaPipe confidence, NN probability, rule strength, and temporal consistency. | Final output has label and confidence. | Not Started |
 | P1 | Hybrid System | 56 | Connect hybrid result to alert system | Alerts should use smoothed hybrid decision, not raw frame output. | Alerts include final posture reason. | Not Started |
-| P2 | Analytics | 57 | Track posture time | Track time spent in good, shrimp, forward lean, looking down, side lean, and uncertain states. | Session has duration per posture state. | Not Started |
+| P2 | Analytics | 57 | Track posture time | Track time spent in good, shrimp, forward lean, looking down, and uncertain states. | Session has duration per posture state. | Not Started |
 | P2 | Analytics | 58 | Track number of alerts | Count posture alerts per session. | Alert count appears in session stats. | Not Started |
 | P2 | Analytics | 59 | Build session summary panel | Show total time, good posture percentage, bad posture percentage, most common issue, alerts, and average score. | Stop session displays summary. | Not Started |
 | P0 | Testing | 60 | Test extension loading | Test Chrome Load Unpacked on at least two machines. | Extension loads successfully outside dev machine. | Not Started |
 | P0 | Testing | 61 | Test webcam behavior | Test start, stop, refresh, permission accepted, and permission denied. | Camera behavior is stable and clear. | Not Started |
-| P0 | Testing | 62 | Test posture cases manually | Test good, shrimp, forward lean, looking down, side lean, no person, partial body, and poor lighting. | Each case has known behavior and documented failure cases. | Not Started |
+| P0 | Testing | 62 | Test posture cases manually | Test good, shrimp, forward lean, looking down, no person, partial body, and poor lighting. | Each case has known behavior and documented failure cases. | Not Started |
 | P1 | Testing | 63 | Test on unseen people | Try users not used during threshold tuning or training. | At least 2 unseen users test the system. | Not Started |
-| P0 | Testing | 64 | Tune thresholds | Adjust slouch, forward lean, looking down, side lean, smoothing window, alert delay, and cooldown. | False alerts are reduced and demo feels stable. | Not Started |
+| P0 | Testing | 64 | Tune thresholds | Adjust slouch, forward lean, looking down, smoothing window, alert delay, and cooldown. | False alerts are reduced and demo feels stable. | Not Started |
 | P1 | Documentation | 65 | Write architecture document | Document Webcam -> MediaPipe -> Landmarks -> Normalization -> Rules -> NN -> Hybrid -> Feedback. | Architecture diagram and explanation exist. | Not Started |
 | P1 | Documentation | 66 | Write dataset document | Explain labels, people count, camera angles, no image/video storage, cleaning, and split strategy. | Dataset process is reproducible and privacy-safe. | Not Started |
 | P1 | Documentation | 67 | Write evaluation document | Include rule-only, ML/NN, hybrid results, confusion matrix, and limitations. | Final approach is justified with metrics. | Not Started |
