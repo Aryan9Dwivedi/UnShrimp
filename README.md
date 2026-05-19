@@ -73,7 +73,6 @@ Use only these posture states for the first demo:
 | `shrimp_slouch` | User is hunched, rounded forward, or collapsed into a shrimp-like sitting posture. |
 | `forward_lean` | User is leaning toward the screen. |
 | `looking_down` | User head or face is angled downward toward keyboard, phone, or desk. |
-| `side_lean` | User is leaning left or right, or shoulders are visibly uneven. |
 | `uncertain` | Pose cannot be trusted because landmarks are missing, confidence is low, or the user is partially out of frame. |
 
 ## Git Workflow
