@@ -1,123 +1,59 @@
-# UnShrimp
+<div align="center">
+  <h1>Un Shrimp</h1>
+  <p><strong>Chrome computer vision posture monitor for real-time seated posture feedback.</strong></p>
+  <img
+    src="assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u27.jpg"
+    alt="Un Shrimp project image"
+    width="260"
+  />
+  <p>
+    <code>Chrome Extension</code> |
+    <code>Webcam Pose Estimation</code> |
+    <code>Posture Feedback</code>
+  </p>
+</div>
 
-UnShrimp is a computer vision posture-monitoring project focused on detecting and correcting poor sitting posture in real time. The first target deployment is a local Chrome extension that uses webcam-based pose detection, rule-based posture checks, and a lightweight neural network classifier.
+## About The Project
 
-## Core Pipeline
+UnShrimp is a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time. The goal is to build a strong deployed Chrome computer vision project that detects sustained poor sitting posture and gives clear feedback to the user.
 
-### S1: MediaPipe Pose Landmarker Web
+The first demo focuses on the browser-based posture monitoring flow: open a monitor page, request webcam access, run pose estimation locally, draw body landmarks and a skeleton overlay, calibrate the user's normal sitting posture, detect sustained poor posture, and show useful feedback.
 
-The first stage uses MediaPipe Pose Landmarker Web JS to process webcam frames and extract the full 33-landmark body pose output.
+## Locked Final Demo Goal
 
-```text
-Webcam frame
-  -> MediaPipe Pose Landmarker
-  -> 33 body landmarks
-  -> Normalize landmarks
-  -> Posture rule system + NN classifier
-  -> Posture feedback
-```
+UnShrimp will be built as a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time.
 
-### S2: Hybrid Rule + Neural Network System
+The first demo should:
 
-UnShrimp will combine deterministic posture rules with a small machine learning model. The rule system provides an interpretable baseline, while the neural network helps improve classification across users, camera positions, and body types.
+1. Open a monitoring page.
+2. Request webcam permission.
+3. Show the live webcam feed.
+4. Run pose estimation locally in the browser.
+5. Draw body landmarks and skeleton overlay.
+6. Let the user calibrate their normal sitting posture.
+7. Detect sustained poor posture.
+8. Show posture status, posture score, and warning message.
+9. Alert only after bad posture continues for a few seconds.
 
-```text
-MediaPipe landmarks
-  -> Landmark normalization
-  -> Engineered posture features
-  -> Rule-based baseline
-  -> NN classifier
-  -> Temporal smoothing
-  -> Final alert
-```
+## Locked Posture Classes
 
-## Dataset Plan
+Use only these posture states for the first demo:
 
-### Posture Classes
+| Posture State | Definition |
+| --- | --- |
+| `good_posture` | User is sitting close to their calibrated normal posture. |
+| `shrimp_slouch` | User is hunched, rounded forward, or collapsed into a shrimp-like sitting posture. |
+| `forward_lean` | User is leaning toward the screen. |
+| `looking_down` | User head or face is angled downward toward keyboard, phone, or desk. |
+| `side_lean` | User is leaning left or right, or shoulders are visibly uneven. |
+| `uncertain` | Pose cannot be trusted because landmarks are missing, confidence is low, or the user is partially out of frame. |
 
-- Good
-- Shrimp / slouch
-- Forward lean
-- Looking down
-- Side lean
+## Git Workflow
 
-### Collection Targets
-
-| People | Posture classes | Camera angles | Time per class | FPS saved | Approx samples |
-| -----: | --------------: | ------------: | -------------: | --------: | -------------: |
-| 6 people | 4 classes | 3 angles | 20 sec | 5 fps | 7,200 samples |
-| 8 people | 5 classes | 3 angles | 20 sec | 5 fps | 12,000 samples |
-
-The dataset will store landmark-only samples rather than raw video whenever possible. This keeps the project lightweight and helps reduce privacy risk.
-
-## Chrome Extension Deployment
-
-```text
-Chrome Extension
-  |-- popup.html
-  |     |-- Start / Stop / Open Monitor
-  |
-  |-- monitor.html
-  |     |-- Webcam feed
-  |     |-- MediaPipe pose overlay
-  |     |-- Rule + NN inference
-  |     |-- Posture score
-  |     |-- Alerts
-  |
-  |-- model/
-  |     |-- posture_model.json
-  |     |-- weights.bin
-  |
-  |-- storage
-        |-- User settings
-        |-- Calibration baseline
-        |-- Session summaries
-```
-
-## Tech Stack
-
-- React + TypeScript Chrome extension
-- MediaPipe Pose Landmarker Web JS
-- Landmark normalization
-- Rule-based posture baseline
-- Small neural network classifier
-- TensorFlow.js or plain JavaScript inference
-- Local browser deployment
-- Optional Azure Functions support for dataset/API workflows
-
-## Approach and Progression
-
-1. Finalize project scope and repo structure.
-2. Build Chrome extension skeleton.
-3. Add webcam permission and live video feed.
-4. Integrate MediaPipe Pose Landmarker.
-5. Display body landmarks and skeleton overlay.
-6. Extract 33 landmark coordinates per frame.
-7. Normalize landmarks by body center and scale.
-8. Add posture feature calculations.
-9. Add 5-second user calibration.
-10. Build rule-based posture detector.
-11. Add temporal smoothing over multiple frames.
-12. Add alert logic after sustained bad posture.
-13. Add basic UI: posture status, score, and warning message.
-14. Build data collection mode.
-15. Define labels: good, shrimp/slouch, forward lean, looking down, side lean.
-16. Collect landmark-only data from users.
-17. Collect multiple camera angles: front, side, and angled.
-18. Export dataset as CSV/JSON.
-19. Clean and verify collected data.
-20. Split dataset by person/session, not random frames.
-21. Train baseline models: logistic regression, random forest/XGBoost, and small NN.
-22. Evaluate rule-based detection against the NN classifier.
-23. Add NN model into the extension.
-24. Combine rule system and NN into hybrid decision logic.
-25. Add explanation layer, such as "leaning forward" or "slouching."
-26. Add session summary analytics.
-27. Test on new users and different lighting/camera positions.
-28. Fix false positives and threshold issues.
-29. Prepare final demo flow.
-30. Freeze features and polish presentation.
-
-## Current Status
-
-This repository is in the initial planning stage. The immediate next milestone is to create the Chrome extension skeleton and confirm webcam access in the browser.
+- Keep the main branch stable and demo-ready.
+- Use a development branch for active integration work.
+- Create feature branches for specific tasks or fixes.
+- Commit small, focused changes with clear messages.
+- Test changes locally before merging them into the stable branch.
+- Avoid mixing unrelated work in the same commit.
+- Use pull requests or reviewed merges when multiple people are contributing.
