@@ -74,6 +74,26 @@ Pose model file missing. Place pose_landmarker_lite.task in public/models/.
 
 That message is expected until the model file is added.
 
+Download the model with one of these commands.
+
+Windows PowerShell:
+
+```powershell
+cd "C:\Code Base\UnShrimp\DataTool"
+Invoke-WebRequest -Uri "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task" -OutFile "public\models\pose_landmarker_lite.task"
+Get-Item "public\models\pose_landmarker_lite.task" | Select-Object Name,Length
+```
+
+macOS Terminal:
+
+```bash
+cd ~/Code/UnShrimp
+curl -L "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task" -o "public/models/pose_landmarker_lite.task"
+ls -lh public/models/pose_landmarker_lite.task
+```
+
+The downloaded file should be roughly 4.5 MB. If the command finishes but the file is missing or has size `0`, delete it and run the download command again.
+
 ## Run Locally
 
 ```bash
@@ -258,6 +278,7 @@ If the pose model does not load:
 
 - Confirm the file is named exactly `pose_landmarker_lite.task`.
 - Confirm it is inside `public/models/`.
+- Confirm the file size is not `0`.
 - Restart `npm run dev` after adding the file.
 
 If Python commands fail on macOS:
