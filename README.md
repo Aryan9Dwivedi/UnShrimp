@@ -33,6 +33,20 @@ For data collection and the final demo, the camera should focus on seated upper-
 
 This keeps the dataset realistic for normal webcam use. Hip landmarks are useful when visible, but they are optional because many real seated laptop setups only show the upper body.
 
+## Dataset And V1 Model Input
+
+The project does not train pose estimation. MediaPipe provides body landmarks, and UnShrimp trains a posture classifier from those landmark values and engineered posture features.
+
+For v1 training:
+
+- Full JSON exports keep all 33 MediaPipe landmarks for debugging and future use.
+- The main training CSV uses only upper-body seated webcam landmarks: nose, eyes, ears, mouth points, left shoulder, and right shoulder.
+- Hips, knees, ankles, heels, feet, wrists, and hands are excluded from the v1 training CSV.
+- The training CSV uses shoulder-normalized landmark coordinates and finite upper-body posture features.
+- Train/validation/test splitting is handled by the Python preparation script, not by the browser export.
+
+This keeps the first neural network aligned with the real Chrome extension use case: seated laptop webcam posture monitoring.
+
 ## Locked Final Demo Goal
 
 UnShrimp will be built as a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time.
