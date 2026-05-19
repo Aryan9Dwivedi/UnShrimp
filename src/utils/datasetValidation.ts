@@ -129,7 +129,7 @@ export function validateDataset(recordings: Recording[]): ValidationCheck[] {
 
   return [
     check(
-      "All five labels represented",
+      "All four labels represented",
       POSTURE_LABELS.every((label) => labelCounts[label] > 0),
       "Every posture label has at least one valid sample.",
       "Collect valid samples for every posture label.",

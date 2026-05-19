@@ -9,7 +9,6 @@ POSTURE_LABELS = {
     "shrimp_slouch",
     "forward_lean",
     "looking_down",
-    "side_lean",
 }
 
 TRAINING_LANDMARKS = [
@@ -138,7 +137,7 @@ def main() -> int:
     dropped_rate = len(dropped_samples) / max(1, len(valid_samples) + len(dropped_samples))
 
     if len(label_counts) < len(POSTURE_LABELS) and valid_samples:
-        warnings.append("Not all five labels have valid samples.")
+        warnings.append("Not all four labels have valid samples.")
     if any(count < 100 for count in label_counts.values()):
         warnings.append("Some labels have fewer than 100 valid samples.")
     if is_imbalanced(label_counts):

@@ -216,7 +216,6 @@ Use exactly these posture labels:
 - `shrimp_slouch`
 - `forward_lean`
 - `looking_down`
-- `side_lean`
 
 Use exactly these camera angles:
 
@@ -231,12 +230,14 @@ Run this before collecting the full dataset:
 
 1. Collect `P001`, `S001`, `front`, `good_posture`, `10` seconds.
 2. Collect `P001`, `S001`, `front`, `shrimp_slouch`, `10` seconds.
-3. Click `Export All Files`.
-4. Confirm the browser downloads raw JSON, training CSV, and manifest files.
-5. Move `unshrimp_dataset_raw.json` into `ml/data/raw/`.
-7. Run the validation script.
-8. Run the preparation script.
-9. Confirm processed files are created in `ml/data/processed/`.
+3. Collect `P001`, `S001`, `front`, `forward_lean`, `10` seconds.
+4. Collect `P001`, `S001`, `front`, `looking_down`, `10` seconds.
+5. Click `Export All Files`.
+6. Confirm the browser downloads raw JSON, training CSV, and manifest files.
+7. Move `unshrimp_dataset_raw.json` into `ml/data/raw/`.
+8. Run the validation script.
+9. Run the preparation script.
+10. Confirm processed files are created in `ml/data/processed/`.
 
 ## Exported Files
 
@@ -297,7 +298,7 @@ Minimum useful target:
 
 - 4 people
 - 2 sessions per person
-- 5 labels
+- 4 labels
 - 2 camera angles
 - 15 seconds per recording
 - 5 FPS sampling
@@ -307,7 +308,7 @@ Better target:
 
 - 5 people
 - 2 sessions per person
-- 5 labels
+- 4 labels
 - 2 camera angles
 - 20 seconds per recording
 - 5 FPS sampling

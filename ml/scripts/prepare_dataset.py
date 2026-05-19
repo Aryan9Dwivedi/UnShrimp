@@ -12,7 +12,6 @@ POSTURE_LABELS = {
     "shrimp_slouch",
     "forward_lean",
     "looking_down",
-    "side_lean",
 }
 
 TRAINING_LANDMARKS = [

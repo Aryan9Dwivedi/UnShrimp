@@ -5,7 +5,6 @@ export const POSTURE_LABELS: PostureLabel[] = [
   "shrimp_slouch",
   "forward_lean",
   "looking_down",
-  "side_lean",
 ];
 
 export const CAMERA_ANGLES: CameraAngle[] = [
@@ -22,6 +21,4 @@ export const LABEL_DEFINITIONS: Record<PostureLabel, string> = {
   forward_lean: "The user is leaning toward the screen.",
   looking_down:
     "The user is looking down toward keyboard, desk, phone, or notes.",
-  side_lean:
-    "The user is leaning left/right or shoulders are visibly uneven.",
 };

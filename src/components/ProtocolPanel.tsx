@@ -21,7 +21,7 @@ export function ProtocolPanel() {
             <li>Include the waist or hip line if possible, but do not force full-body framing.</li>
             <li>Press Start Recording.</li>
             <li>Hold the posture until recording ends.</li>
-            <li>Repeat for all five labels.</li>
+            <li>Repeat for all four labels.</li>
             <li>Use front and one angled camera view if possible.</li>
             <li>Export JSON, CSV, and manifest after collection.</li>
             <li>Run validate_dataset.py before using the data.</li>
@@ -44,11 +44,11 @@ export function ProtocolPanel() {
           </p>
           <h3>Realistic dataset target</h3>
           <p>
-            Minimum useful target: 4 people, 2 sessions per person, 5 labels, 2 camera angles,
+            Minimum useful target: 4 people, 2 sessions per person, 4 labels, 2 camera angles,
             15 seconds per recording, 5 FPS sampling.
           </p>
           <p>
-            Better target: 5 people, 2 sessions per person, 5 labels, 2 camera angles,
+            Better target: 5 people, 2 sessions per person, 4 labels, 2 camera angles,
             20 seconds per recording, 5 FPS sampling.
           </p>
         </div>

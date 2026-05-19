@@ -2,8 +2,7 @@ export type PostureLabel =
   | "good_posture"
   | "shrimp_slouch"
   | "forward_lean"
-  | "looking_down"
-  | "side_lean";
+  | "looking_down";
 
 export type CameraAngle = "front" | "left_angle" | "right_angle" | "side";
 
