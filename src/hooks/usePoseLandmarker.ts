@@ -22,19 +22,18 @@ export function usePoseLandmarker(
   const [poseConfidence, setPoseConfidence] = useState(0);
   const [fps, setFps] = useState(0);
   const latestPoseRef = useRef<LatestPoseFrame | null>(null);
-  const landmarkerRef = useRef<PoseLandmarker | null>(null);
-  const rafRef = useRef<number | null>(null);
+  const landmarkerRef = useRef<PoseLandmarker | null>(null);`r`n  const isLoadingRef = useRef(false);`r`n  const rafRef = useRef<number | null>(null);
   const lastFrameTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadModel() {
-      if (!isCameraActive || landmarkerRef.current || modelStatus === "loading") {
+      if (!isCameraActive || landmarkerRef.current || isLoadingRef.current) {
         return;
       }
 
-      setModelStatus("loading");
+      isLoadingRef.current = true;`r`n      setModelStatus("loading");
       setModelMessage("Loading pose landmarker model...");
 
       try {
@@ -67,8 +66,7 @@ export function usePoseLandmarker(
         }
         const isMissing = error instanceof Error && error.message === "MODEL_MISSING";
         setModelStatus(isMissing ? "missing" : "error");
-        setModelMessage(isMissing ? MISSING_MODEL_MESSAGE : "Unable to load pose landmarker model.");
-      }
+        setModelMessage(isMissing ? MISSING_MODEL_MESSAGE : "Unable to load pose landmarker model.");`r`n      } finally {`r`n        isLoadingRef.current = false;`r`n      }
     }
 
     loadModel();
@@ -76,7 +74,7 @@ export function usePoseLandmarker(
     return () => {
       cancelled = true;
     };
-  }, [isCameraActive, modelStatus]);
+  }, [isCameraActive]);
 
   useEffect(() => {
     if (!isCameraActive || !landmarkerRef.current || !videoRef.current || !canvasRef.current) {
@@ -208,3 +206,4 @@ function clearCanvas(canvas: HTMLCanvasElement | null) {
 function isDrawable(point: PosePoint | undefined): point is PosePoint {
   return Boolean(point && (point.visibility === undefined || point.visibility >= 0.3));
 }
+
