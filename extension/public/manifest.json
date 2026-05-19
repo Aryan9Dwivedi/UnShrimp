@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "UnShrimp",
+  "version": "0.1.0",
+  "description": "Local Chrome extension foundation for webcam-based posture monitoring.",
+  "action": {
+    "default_title": "UnShrimp",
+    "default_popup": "src/popup/popup.html"
+  },
+  "permissions": []
+}
