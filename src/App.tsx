@@ -142,6 +142,6 @@ function getReadinessMessage({
   if (!isCameraActive) return "Start the camera before recording.";
   if (!modelLoaded) return "Wait for the pose model to load.";
   if (!poseDetected) return "Move into frame until pose is detected.";
-  if (poseConfidence < 0.5) return "Pose confidence is low. Improve lighting or move farther back.";
-  return "Ready. Hold the selected posture and start recording.";
+  if (poseConfidence < 0.5) return "Pose confidence is low. Show head, shoulders, and upper torso clearly.";
+  return "Ready. Stay seated, hold the selected posture, and start recording.";
 }

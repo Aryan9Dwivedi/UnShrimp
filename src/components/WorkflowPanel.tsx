@@ -33,12 +33,12 @@ export function WorkflowPanel({
       detail: modelLoaded ? "Pose model is loaded." : "Wait for the model to finish loading.",
     },
     {
-      label: "Confirm pose quality",
+      label: "Confirm seated framing",
       done: poseDetected && poseConfidence >= 0.5,
       detail:
         poseDetected && poseConfidence >= 0.5
-          ? `Pose is usable at ${poseConfidence.toFixed(2)} confidence.`
-          : "Sit farther back so head, shoulders, and upper torso are visible.",
+          ? `Pose is usable at ${poseConfidence.toFixed(2)} confidence. Keep the user seated.`
+          : "For seated desk posture, frame head, both shoulders, and upper torso. Hips are helpful but optional.",
     },
     {
       label: "Check metadata",

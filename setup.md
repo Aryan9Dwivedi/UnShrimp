@@ -162,6 +162,33 @@ It does not store:
 
 Dropped samples stay in the full JSON export for debugging. Dropped samples are excluded from the training CSV.
 
+## Seated Framing Rules
+
+UnShrimp is for seated desk posture while working. Do not collect standing posture or full-body exercise-style pose data.
+
+Required framing:
+
+- Head and face or nose area visible
+- Both shoulders visible
+- Upper chest or upper torso visible
+- User seated at a desk or laptop
+
+Recommended framing:
+
+- Waist or hip line visible if the laptop camera naturally captures it
+- Normal working distance from the webcam
+- Stable camera and good lighting
+
+Not required:
+
+- Legs
+- Knees
+- Ankles
+- Feet
+- Full-body standing view
+
+The hips are useful for torso-lean features, but they are optional because many normal laptop webcam setups only capture seated upper-body posture.
+
 ## Labels
 
 Use exactly these posture labels:
@@ -255,6 +282,7 @@ Minimum useful target:
 - 2 camera angles
 - 15 seconds per recording
 - 5 FPS sampling
+- seated upper-body framing only
 
 Better target:
 
@@ -264,6 +292,7 @@ Better target:
 - 2 camera angles
 - 20 seconds per recording
 - 5 FPS sampling
+- seated upper-body framing only
 
 ## Troubleshooting
 
