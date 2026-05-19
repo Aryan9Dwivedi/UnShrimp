@@ -6,7 +6,7 @@ import { averageKeyLandmarkVisibility } from "../utils/postureFeatures";
 import { toNamedLandmarks } from "./useDataRecorder";
 
 const MODEL_PATH = "models/pose_landmarker_lite.task";
-const WASM_PATH = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm";
+const WASM_PATH = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm";
 const MISSING_MODEL_MESSAGE = "Pose model file missing. Place pose_landmarker_lite.task in public/models/.";
 
 export type PoseModelStatus = "idle" | "loading" | "loaded" | "missing" | "error";
