@@ -2,7 +2,7 @@
   <h1>Un Shrimp</h1>
   <p><strong>Chrome computer vision posture monitor for real-time seated posture feedback.</strong></p>
   <img
-    src="src/flat,750x,075,f-pad,750x1000,f8f8f8.u27.jpg"
+    src="assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u27.jpg"
     alt="Un Shrimp project image"
     width="260"
   />
