@@ -17,12 +17,32 @@ export function loadRecordings(): Recording[] {
 
 export function saveRecordings(recordings: Recording[]): { storageWarning: string | null } {
   const serialized = JSON.stringify(recordings);
-  localStorage.setItem(LOCAL_STORAGE_KEY, serialized);
+  const sizeWarning =
+    serialized.length > STORAGE_WARNING_BYTES
+      ? "Dataset is getting large. Export your data before collecting more."
+      : null;
+
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, serialized);
+  } catch (error) {
+    return {
+      storageWarning: isStorageQuotaError(error)
+        ? "Browser storage is full. Export your data now. New recordings are still kept in memory until this page is refreshed."
+        : "Browser storage could not save this dataset. Export your data before refreshing the page.",
+    };
+  }
 
   return {
-    storageWarning:
-      serialized.length > STORAGE_WARNING_BYTES
-        ? "Dataset is getting large. Export your data before collecting more."
-        : null,
+    storageWarning: sizeWarning,
   };
+}
+
+function isStorageQuotaError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === "QuotaExceededError" ||
+      error.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+      error.code === 22 ||
+      error.code === 1014)
+  );
 }
