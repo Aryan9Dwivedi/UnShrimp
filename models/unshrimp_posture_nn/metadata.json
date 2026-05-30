@@ -1,0 +1,175 @@
+{
+  "model_name": "unshrimp_posture_nn",
+  "labels": [
+    "good_posture",
+    "shrimp_slouch",
+    "forward_lean",
+    "looking_down"
+  ],
+  "label_to_id": {
+    "good_posture": 0,
+    "shrimp_slouch": 1,
+    "forward_lean": 2,
+    "looking_down": 3
+  },
+  "id_to_label": {
+    "0": "good_posture",
+    "1": "shrimp_slouch",
+    "2": "forward_lean",
+    "3": "looking_down"
+  },
+  "feature_columns": [
+    "nose_x",
+    "nose_y",
+    "nose_z",
+    "nose_v",
+    "left_eye_inner_x",
+    "left_eye_inner_y",
+    "left_eye_inner_z",
+    "left_eye_inner_v",
+    "left_eye_x",
+    "left_eye_y",
+    "left_eye_z",
+    "left_eye_v",
+    "left_eye_outer_x",
+    "left_eye_outer_y",
+    "left_eye_outer_z",
+    "left_eye_outer_v",
+    "right_eye_inner_x",
+    "right_eye_inner_y",
+    "right_eye_inner_z",
+    "right_eye_inner_v",
+    "right_eye_x",
+    "right_eye_y",
+    "right_eye_z",
+    "right_eye_v",
+    "right_eye_outer_x",
+    "right_eye_outer_y",
+    "right_eye_outer_z",
+    "right_eye_outer_v",
+    "left_ear_x",
+    "left_ear_y",
+    "left_ear_z",
+    "left_ear_v",
+    "right_ear_x",
+    "right_ear_y",
+    "right_ear_z",
+    "right_ear_v",
+    "mouth_left_x",
+    "mouth_left_y",
+    "mouth_left_z",
+    "mouth_left_v",
+    "mouth_right_x",
+    "mouth_right_y",
+    "mouth_right_z",
+    "mouth_right_v",
+    "left_shoulder_x",
+    "left_shoulder_y",
+    "left_shoulder_z",
+    "left_shoulder_v",
+    "right_shoulder_x",
+    "right_shoulder_y",
+    "right_shoulder_z",
+    "right_shoulder_v",
+    "shoulder_slope",
+    "head_center_x",
+    "head_center_y",
+    "head_center_z",
+    "shoulder_midpoint_x",
+    "shoulder_midpoint_y",
+    "shoulder_midpoint_z",
+    "head_to_shoulder_x_offset",
+    "head_to_shoulder_y_offset",
+    "head_to_shoulder_z_offset",
+    "nose_to_shoulder_y_offset",
+    "nose_to_shoulder_z_offset",
+    "face_tilt_proxy",
+    "head_drop_proxy",
+    "side_lean_proxy",
+    "upper_body_confidence"
+  ],
+  "input_dim": 68,
+  "architecture": {
+    "hidden_layers": [
+      100,
+      100,
+      100
+    ],
+    "activation": "relu",
+    "optimizer": "adam",
+    "learning_rate": 0.001,
+    "epochs_requested": 100,
+    "dropout": 0.0
+  },
+  "splits": {
+    "train_rows": 3084,
+    "val_rows": 329,
+    "test_rows": 333
+  },
+  "metrics": {
+    "val": {
+      "accuracy": 1.0,
+      "precision_weighted": 1.0,
+      "recall_weighted": 1.0,
+      "f1_weighted": 1.0,
+      "confusion_matrix": [
+        [
+          125,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          68,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          68,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          68
+        ]
+      ]
+    },
+    "test": {
+      "accuracy": 0.996996996996997,
+      "precision_weighted": 0.9970398970398971,
+      "recall_weighted": 0.996996996996997,
+      "f1_weighted": 0.9970018170883774,
+      "confusion_matrix": [
+        [
+          125,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          69,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          69,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          69
+        ]
+      ]
+    }
+  }
+}
