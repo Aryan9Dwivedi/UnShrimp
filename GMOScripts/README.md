@@ -39,6 +39,8 @@ Generated files:
 - `unshrimp_gmo_master_raw.json`
 - `unshrimp_gmo_manifest.json`
 - `unshrimp_gmo_training.csv`
+- `train_original.csv`
+- `train_augmented_only.csv`
 - `train.csv`
 - `val.csv`
 - `test.csv`
@@ -50,4 +52,6 @@ Generated files:
 - Uses only v1 labels: `good_posture`, `shrimp_slouch`, `forward_lean`, `looking_down`.
 - Excludes `side_lean` samples from final training data.
 - Keeps the model input upper-body only.
+- Adds conservative augmentation to the training split only.
+- Keeps validation and test files real-only.
 - Uses raw JSON as the source of truth; CSV files from DataTool are not merged directly.

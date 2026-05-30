@@ -1,6 +1,6 @@
 {
-  "created_at": "2026-05-30T04:29:11.505540+00:00",
-  "input_dir": "C:\\Code Base\\UnShrimp\\DataFeed\\RawData",
+  "created_at": "2026-05-30T04:37:19.447776+00:00",
+  "input_dir": "C:\\Users\\fries\\AppData\\Local\\Temp\\unshrimp-datafeed-augmented-gmo-2b1d75ba02b342c0bf778ebe3a45d0e7\\RawData",
   "allowed_labels": [
     "good_posture",
     "shrimp_slouch",
@@ -78,15 +78,44 @@
   "invalid_training_sample_count": 0,
   "recording_count": 29,
   "training_row_count": 2204,
-  "train_count": 1542,
+  "train_original_count": 1542,
+  "train_augmented_count": 1542,
+  "train_count": 3084,
   "val_count": 329,
   "test_count": 333,
   "split_strategy": "stratified_random_split",
+  "augmentation": {
+    "enabled": true,
+    "copies_per_training_row": 1,
+    "applied_to": "train_split_only",
+    "validation_and_test": "real_samples_only",
+    "method": "small Gaussian jitter on normalized upper-body landmark x/y/z values, then recompute posture features",
+    "xy_jitter_std": 0.008,
+    "z_jitter_std": 0.012
+  },
   "label_counts": {
     "good_posture": 836,
     "shrimp_slouch": 456,
     "forward_lean": 456,
     "looking_down": 456
+  },
+  "train_label_counts": {
+    "good_posture": 1170,
+    "forward_lean": 638,
+    "shrimp_slouch": 638,
+    "looking_down": 638
+  },
+  "val_label_counts": {
+    "good_posture": 125,
+    "forward_lean": 68,
+    "shrimp_slouch": 68,
+    "looking_down": 68
+  },
+  "test_label_counts": {
+    "good_posture": 126,
+    "forward_lean": 69,
+    "looking_down": 69,
+    "shrimp_slouch": 69
   },
   "person_counts": {
     "P001": 1900,

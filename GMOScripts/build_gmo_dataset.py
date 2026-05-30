@@ -84,6 +84,9 @@ CSV_COLUMNS.extend(FEATURE_NAMES)
 
 REQUIRED_SCHEMA_VERSION = "2.0.0"
 GMO_SCHEMA_VERSION = "1.0.0"
+DEFAULT_AUGMENT_COPIES = 1
+LANDMARK_XY_JITTER_STD = 0.008
+LANDMARK_Z_JITTER_STD = 0.012
 
 
 def main() -> int:
@@ -101,6 +104,12 @@ def main() -> int:
         help="Folder where final merged and prepared files will be written.",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed for fallback splitting.")
+    parser.add_argument(
+        "--augment-copies",
+        type=int,
+        default=DEFAULT_AUGMENT_COPIES,
+        help="Number of conservative augmented copies to create per training row. Validation and test stay real only.",
+    )
     args = parser.parse_args()
 
     input_dir = Path(args.input)
@@ -110,6 +119,8 @@ def main() -> int:
     merge_result = merge_raw_exports(input_dir)
     rows, invalid_training_samples = build_training_rows(merge_result["recordings"])
     train_rows, val_rows, test_rows, split_strategy, split_warnings = split_rows(rows, args.seed)
+    augmented_train_rows = augment_training_rows(train_rows, args.augment_copies, args.seed)
+    final_train_rows = [*train_rows, *augmented_train_rows]
 
     created_at = datetime.now(timezone.utc).isoformat()
     report = build_report(
@@ -119,10 +130,13 @@ def main() -> int:
         rows=rows,
         invalid_training_samples=invalid_training_samples,
         train_rows=train_rows,
+        augmented_train_rows=augmented_train_rows,
+        final_train_rows=final_train_rows,
         val_rows=val_rows,
         test_rows=test_rows,
         split_strategy=split_strategy,
         split_warnings=split_warnings,
+        augment_copies=args.augment_copies,
     )
 
     master_raw = {
@@ -150,7 +164,10 @@ def main() -> int:
         "session_counts": report["session_counts"],
         "camera_angle_counts": report["camera_angle_counts"],
         "split_strategy": split_strategy,
-        "train_count": len(train_rows),
+        "augmentation": report["augmentation"],
+        "train_original_count": len(train_rows),
+        "train_augmented_count": len(augmented_train_rows),
+        "train_count": len(final_train_rows),
         "val_count": len(val_rows),
         "test_count": len(test_rows),
     }
@@ -159,7 +176,9 @@ def main() -> int:
     write_json(output_dir / "unshrimp_gmo_manifest.json", manifest)
     write_json(output_dir / "dataset_report.json", report)
     write_csv(output_dir / "unshrimp_gmo_training.csv", rows)
-    write_csv(output_dir / "train.csv", train_rows)
+    write_csv(output_dir / "train_original.csv", train_rows)
+    write_csv(output_dir / "train_augmented_only.csv", augmented_train_rows)
+    write_csv(output_dir / "train.csv", final_train_rows)
     write_csv(output_dir / "val.csv", val_rows)
     write_csv(output_dir / "test.csv", test_rows)
 
@@ -169,7 +188,8 @@ def main() -> int:
     print(f"Merged recordings: {len(merge_result['recordings'])}")
     print(f"Training rows: {len(rows)}")
     print(f"Split strategy: {split_strategy}")
-    print(f"Train/Val/Test: {len(train_rows)}/{len(val_rows)}/{len(test_rows)}")
+    print(f"Augmented train rows: {len(augmented_train_rows)}")
+    print(f"Train/Val/Test: {len(final_train_rows)}/{len(val_rows)}/{len(test_rows)}")
     print("Label counts:")
     for label, count in sorted(report["label_counts"].items()):
         print(f"  {label}: {count}")
@@ -424,6 +444,119 @@ def stratified_random_split(
     return train_rows, val_rows, test_rows
 
 
+def augment_training_rows(rows: List[Dict[str, Any]], copies: int, seed: int) -> List[Dict[str, Any]]:
+    if copies <= 0:
+        return []
+
+    rng = random.Random(seed + 10_000)
+    augmented_rows: List[Dict[str, Any]] = []
+    for row in rows:
+        for copy_index in range(1, copies + 1):
+            augmented = augment_row(row, copy_index, rng)
+            validate_training_row(augmented)
+            augmented_rows.append(augmented)
+    return augmented_rows
+
+
+def augment_row(row: Dict[str, Any], copy_index: int, rng: random.Random) -> Dict[str, Any]:
+    augmented = dict(row)
+    suffix = f"_aug{copy_index:02d}"
+    augmented["sample_id"] = f"{row['sample_id']}{suffix}"
+    augmented["recording_id"] = f"{row['recording_id']}{suffix}"
+
+    for landmark_name in TRAINING_LANDMARKS:
+        augmented[f"{landmark_name}_x"] = float(row[f"{landmark_name}_x"]) + rng.gauss(0, LANDMARK_XY_JITTER_STD)
+        augmented[f"{landmark_name}_y"] = float(row[f"{landmark_name}_y"]) + rng.gauss(0, LANDMARK_XY_JITTER_STD)
+        augmented[f"{landmark_name}_z"] = float(row[f"{landmark_name}_z"]) + rng.gauss(0, LANDMARK_Z_JITTER_STD)
+        augmented[f"{landmark_name}_v"] = clamp(float(row[f"{landmark_name}_v"]), 0.5, 1.0)
+
+    recompute_features(augmented)
+    return augmented
+
+
+def recompute_features(row: Dict[str, Any]) -> None:
+    nose = landmark_tuple(row, "nose")
+    left_eye = landmark_tuple(row, "left_eye")
+    right_eye = landmark_tuple(row, "right_eye")
+    left_ear = landmark_tuple(row, "left_ear")
+    right_ear = landmark_tuple(row, "right_ear")
+    left_shoulder = landmark_tuple(row, "left_shoulder")
+    right_shoulder = landmark_tuple(row, "right_shoulder")
+
+    shoulder_midpoint = midpoint(left_shoulder, right_shoulder)
+    if is_reliable(row, "left_ear") and is_reliable(row, "right_ear"):
+        head_center = midpoint(left_ear, right_ear)
+    else:
+        head_center = nose
+
+    shoulder_slope = right_shoulder[1] - left_shoulder[1]
+    if is_reliable(row, "left_eye") and is_reliable(row, "right_eye"):
+        face_tilt_proxy = right_eye[1] - left_eye[1]
+    elif is_reliable(row, "left_ear") and is_reliable(row, "right_ear"):
+        face_tilt_proxy = right_ear[1] - left_ear[1]
+    else:
+        face_tilt_proxy = 0.0
+
+    row["shoulder_slope"] = shoulder_slope
+    row["head_center_x"] = head_center[0]
+    row["head_center_y"] = head_center[1]
+    row["head_center_z"] = head_center[2]
+    row["shoulder_midpoint_x"] = shoulder_midpoint[0]
+    row["shoulder_midpoint_y"] = shoulder_midpoint[1]
+    row["shoulder_midpoint_z"] = shoulder_midpoint[2]
+    row["head_to_shoulder_x_offset"] = head_center[0] - shoulder_midpoint[0]
+    row["head_to_shoulder_y_offset"] = head_center[1] - shoulder_midpoint[1]
+    row["head_to_shoulder_z_offset"] = head_center[2] - shoulder_midpoint[2]
+    row["nose_to_shoulder_y_offset"] = nose[1] - shoulder_midpoint[1]
+    row["nose_to_shoulder_z_offset"] = nose[2] - shoulder_midpoint[2]
+    row["face_tilt_proxy"] = face_tilt_proxy
+    row["head_drop_proxy"] = nose[1] - shoulder_midpoint[1]
+    row["side_lean_proxy"] = abs(shoulder_slope)
+    row["upper_body_confidence"] = sum(float(row[f"{name}_v"]) for name in TRAINING_LANDMARKS) / len(
+        TRAINING_LANDMARKS
+    )
+    row["pose_confidence"] = row["upper_body_confidence"]
+
+
+def validate_training_row(row: Dict[str, Any]) -> None:
+    if list(row.keys()) != CSV_COLUMNS:
+        raise ValueError("Augmented row column order mismatch.")
+    if row["label"] not in ALLOWED_LABELS:
+        raise ValueError(f"Invalid augmented label: {row['label']}")
+    for column in CSV_COLUMNS:
+        value = row[column]
+        if column in {"sample_id", "recording_id", "person_id", "session_id", "camera_angle", "label", "quality_status"}:
+            if not isinstance(value, str) or not value:
+                raise ValueError(f"Augmented row has invalid text column {column}.")
+            continue
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+            raise ValueError(f"Augmented row has non-finite value in {column}.")
+
+
+def landmark_tuple(row: Dict[str, Any], name: str) -> Tuple[float, float, float]:
+    return (
+        float(row[f"{name}_x"]),
+        float(row[f"{name}_y"]),
+        float(row[f"{name}_z"]),
+    )
+
+
+def midpoint(a: Tuple[float, float, float], b: Tuple[float, float, float]) -> Tuple[float, float, float]:
+    return (
+        (a[0] + b[0]) / 2,
+        (a[1] + b[1]) / 2,
+        (a[2] + b[2]) / 2,
+    )
+
+
+def is_reliable(row: Dict[str, Any], name: str) -> bool:
+    return float(row[f"{name}_v"]) >= 0.5
+
+
+def clamp(value: float, minimum: float, maximum: float) -> float:
+    return max(minimum, min(maximum, value))
+
+
 def build_report(
     *,
     created_at: str,
@@ -432,10 +565,13 @@ def build_report(
     rows: List[Dict[str, Any]],
     invalid_training_samples: int,
     train_rows: List[Dict[str, Any]],
+    augmented_train_rows: List[Dict[str, Any]],
+    final_train_rows: List[Dict[str, Any]],
     val_rows: List[Dict[str, Any]],
     test_rows: List[Dict[str, Any]],
     split_strategy: str,
     split_warnings: List[str],
+    augment_copies: int,
 ) -> Dict[str, Any]:
     label_counts = Counter(row["label"] for row in rows)
     person_counts = Counter(row["person_id"] for row in rows)
@@ -470,11 +606,25 @@ def build_report(
         "invalid_training_sample_count": invalid_training_samples,
         "recording_count": len(merge_result["recordings"]),
         "training_row_count": len(rows),
-        "train_count": len(train_rows),
+        "train_original_count": len(train_rows),
+        "train_augmented_count": len(augmented_train_rows),
+        "train_count": len(final_train_rows),
         "val_count": len(val_rows),
         "test_count": len(test_rows),
         "split_strategy": split_strategy,
+        "augmentation": {
+            "enabled": len(augmented_train_rows) > 0,
+            "copies_per_training_row": augment_copies,
+            "applied_to": "train_split_only",
+            "validation_and_test": "real_samples_only",
+            "method": "small Gaussian jitter on normalized upper-body landmark x/y/z values, then recompute posture features",
+            "xy_jitter_std": LANDMARK_XY_JITTER_STD,
+            "z_jitter_std": LANDMARK_Z_JITTER_STD,
+        },
         "label_counts": dict(label_counts),
+        "train_label_counts": dict(Counter(row["label"] for row in final_train_rows)),
+        "val_label_counts": dict(Counter(row["label"] for row in val_rows)),
+        "test_label_counts": dict(Counter(row["label"] for row in test_rows)),
         "person_counts": dict(person_counts),
         "session_counts": dict(session_counts),
         "camera_angle_counts": dict(camera_angle_counts),

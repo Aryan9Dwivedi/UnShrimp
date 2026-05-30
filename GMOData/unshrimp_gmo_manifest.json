@@ -1,6 +1,6 @@
 {
   "gmo_schema_version": "1.0.0",
-  "created_at": "2026-05-30T04:29:11.505540+00:00",
+  "created_at": "2026-05-30T04:37:19.447776+00:00",
   "allowed_labels": [
     "good_posture",
     "shrimp_slouch",
@@ -138,7 +138,18 @@
     "front": 2204
   },
   "split_strategy": "stratified_random_split",
-  "train_count": 1542,
+  "augmentation": {
+    "enabled": true,
+    "copies_per_training_row": 1,
+    "applied_to": "train_split_only",
+    "validation_and_test": "real_samples_only",
+    "method": "small Gaussian jitter on normalized upper-body landmark x/y/z values, then recompute posture features",
+    "xy_jitter_std": 0.008,
+    "z_jitter_std": 0.012
+  },
+  "train_original_count": 1542,
+  "train_augmented_count": 1542,
+  "train_count": 3084,
   "val_count": 329,
   "test_count": 333
 }
