@@ -47,6 +47,22 @@ For v1 training:
 
 This keeps the first neural network aligned with the real Chrome extension use case: seated laptop webcam posture monitoring.
 
+## Current ML Training Status
+
+The first model-ready dataset and training scaffold are prepared.
+
+- `data/gmo/` stores the processed train, validation, and test splits copied from the GMO dataset output.
+- `ml/` stores the data-loading utilities, neural-network training script, evaluation script, hybrid helper logic, and Python requirements.
+- `ml/Eval/` is reserved for training curves, confusion matrices, reports, and metrics after training.
+- `models/unshrimp_posture_nn/` is reserved for the trained model and preprocessing metadata that will later be wired into the Chrome extension.
+
+Current dataset notes:
+
+- The current dataset is front-angle-only because that is what the team collected.
+- Training data includes conservative augmentation.
+- Validation and test data are real collected samples only.
+- The first NN architecture follows the research direction: three hidden layers, 100 units each, ReLU, Adam, learning rate `0.001`, and up to 100 epochs.
+
 ## Locked Final Demo Goal
 
 UnShrimp will be built as a locally running Chrome extension that uses the laptop webcam to monitor seated posture in real time.
