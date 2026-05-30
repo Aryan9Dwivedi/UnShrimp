@@ -1,0 +1,20 @@
+{
+  "labels": [
+    "good_posture",
+    "shrimp_slouch",
+    "forward_lean",
+    "looking_down"
+  ],
+  "label_to_id": {
+    "good_posture": 0,
+    "shrimp_slouch": 1,
+    "forward_lean": 2,
+    "looking_down": 3
+  },
+  "id_to_label": {
+    "0": "good_posture",
+    "1": "shrimp_slouch",
+    "2": "forward_lean",
+    "3": "looking_down"
+  }
+}

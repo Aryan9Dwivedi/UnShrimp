@@ -1,0 +1,39 @@
+{
+  "good_posture": {
+    "precision": 1.0,
+    "recall": 0.9920634920634921,
+    "f1-score": 0.9960159362549801,
+    "support": 126.0
+  },
+  "shrimp_slouch": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 69.0
+  },
+  "forward_lean": {
+    "precision": 0.9857142857142858,
+    "recall": 1.0,
+    "f1-score": 0.9928057553956835,
+    "support": 69.0
+  },
+  "looking_down": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 69.0
+  },
+  "accuracy": 0.996996996996997,
+  "macro avg": {
+    "precision": 0.9964285714285714,
+    "recall": 0.998015873015873,
+    "f1-score": 0.9972054229126659,
+    "support": 333.0
+  },
+  "weighted avg": {
+    "precision": 0.9970398970398971,
+    "recall": 0.996996996996997,
+    "f1-score": 0.9970018170883774,
+    "support": 333.0
+  }
+}
