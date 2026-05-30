@@ -1,0 +1,220 @@
+{
+  "created_at": "2026-05-30T04:29:11.505540+00:00",
+  "input_dir": "C:\\Code Base\\UnShrimp\\DataFeed\\RawData",
+  "allowed_labels": [
+    "good_posture",
+    "shrimp_slouch",
+    "forward_lean",
+    "looking_down"
+  ],
+  "source_schema_required": "2.0.0",
+  "raw_files_scanned": 9,
+  "file_summaries": [
+    {
+      "file": "batch01_unshrimp_dataset_raw.json",
+      "source_recordings": 5,
+      "kept_valid_samples": 380,
+      "skipped_label_samples": 0,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "batch02_unshrimp_dataset_raw.json",
+      "source_recordings": 3,
+      "kept_valid_samples": 152,
+      "skipped_label_samples": 76,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "batch03_unshrimp_dataset_raw.json",
+      "source_recordings": 5,
+      "kept_valid_samples": 304,
+      "skipped_label_samples": 76,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "batch04_unshrimp_dataset_raw.json",
+      "source_recordings": 10,
+      "kept_valid_samples": 608,
+      "skipped_label_samples": 152,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "batch05_unshrimp_dataset_raw.json",
+      "source_recordings": 5,
+      "kept_valid_samples": 304,
+      "skipped_label_samples": 76,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "unshrimp_dataset_raw (1).json",
+      "source_recordings": 1,
+      "kept_valid_samples": 76,
+      "skipped_label_samples": 0,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "unshrimp_dataset_raw (3).json",
+      "source_recordings": 4,
+      "kept_valid_samples": 304,
+      "skipped_label_samples": 0,
+      "duplicate_samples": 0
+    },
+    {
+      "file": "unshrimp_dataset_raw.json",
+      "source_recordings": 1,
+      "kept_valid_samples": 76,
+      "skipped_label_samples": 0,
+      "duplicate_samples": 0
+    }
+  ],
+  "skipped_files": [
+    {
+      "file": "unshrimp_dataset_20260519T041241Z_raw.json",
+      "reason": "UNSUPPORTED_SCHEMA: 1.0.0"
+    }
+  ],
+  "duplicate_sample_count": 0,
+  "incompatible_sample_count": 0,
+  "invalid_training_sample_count": 0,
+  "recording_count": 29,
+  "training_row_count": 2204,
+  "train_count": 1542,
+  "val_count": 329,
+  "test_count": 333,
+  "split_strategy": "stratified_random_split",
+  "label_counts": {
+    "good_posture": 836,
+    "shrimp_slouch": 456,
+    "forward_lean": 456,
+    "looking_down": 456
+  },
+  "person_counts": {
+    "P001": 1900,
+    "P002": 304
+  },
+  "session_counts": {
+    "S001": 2204
+  },
+  "camera_angle_counts": {
+    "front": 2204
+  },
+  "training_landmarks": [
+    "nose",
+    "left_eye_inner",
+    "left_eye",
+    "left_eye_outer",
+    "right_eye_inner",
+    "right_eye",
+    "right_eye_outer",
+    "left_ear",
+    "right_ear",
+    "mouth_left",
+    "mouth_right",
+    "left_shoulder",
+    "right_shoulder"
+  ],
+  "feature_names": [
+    "shoulder_slope",
+    "head_center_x",
+    "head_center_y",
+    "head_center_z",
+    "shoulder_midpoint_x",
+    "shoulder_midpoint_y",
+    "shoulder_midpoint_z",
+    "head_to_shoulder_x_offset",
+    "head_to_shoulder_y_offset",
+    "head_to_shoulder_z_offset",
+    "nose_to_shoulder_y_offset",
+    "nose_to_shoulder_z_offset",
+    "face_tilt_proxy",
+    "head_drop_proxy",
+    "side_lean_proxy",
+    "upper_body_confidence"
+  ],
+  "csv_columns": [
+    "sample_id",
+    "recording_id",
+    "person_id",
+    "session_id",
+    "camera_angle",
+    "label",
+    "timestamp_ms",
+    "pose_confidence",
+    "quality_status",
+    "nose_x",
+    "nose_y",
+    "nose_z",
+    "nose_v",
+    "left_eye_inner_x",
+    "left_eye_inner_y",
+    "left_eye_inner_z",
+    "left_eye_inner_v",
+    "left_eye_x",
+    "left_eye_y",
+    "left_eye_z",
+    "left_eye_v",
+    "left_eye_outer_x",
+    "left_eye_outer_y",
+    "left_eye_outer_z",
+    "left_eye_outer_v",
+    "right_eye_inner_x",
+    "right_eye_inner_y",
+    "right_eye_inner_z",
+    "right_eye_inner_v",
+    "right_eye_x",
+    "right_eye_y",
+    "right_eye_z",
+    "right_eye_v",
+    "right_eye_outer_x",
+    "right_eye_outer_y",
+    "right_eye_outer_z",
+    "right_eye_outer_v",
+    "left_ear_x",
+    "left_ear_y",
+    "left_ear_z",
+    "left_ear_v",
+    "right_ear_x",
+    "right_ear_y",
+    "right_ear_z",
+    "right_ear_v",
+    "mouth_left_x",
+    "mouth_left_y",
+    "mouth_left_z",
+    "mouth_left_v",
+    "mouth_right_x",
+    "mouth_right_y",
+    "mouth_right_z",
+    "mouth_right_v",
+    "left_shoulder_x",
+    "left_shoulder_y",
+    "left_shoulder_z",
+    "left_shoulder_v",
+    "right_shoulder_x",
+    "right_shoulder_y",
+    "right_shoulder_z",
+    "right_shoulder_v",
+    "shoulder_slope",
+    "head_center_x",
+    "head_center_y",
+    "head_center_z",
+    "shoulder_midpoint_x",
+    "shoulder_midpoint_y",
+    "shoulder_midpoint_z",
+    "head_to_shoulder_x_offset",
+    "head_to_shoulder_y_offset",
+    "head_to_shoulder_z_offset",
+    "nose_to_shoulder_y_offset",
+    "nose_to_shoulder_z_offset",
+    "face_tilt_proxy",
+    "head_drop_proxy",
+    "side_lean_proxy",
+    "upper_body_confidence"
+  ],
+  "warnings": [
+    "Not enough people or sessions for grouped split; using stratified random split.",
+    "Fewer than 5 people are present; model quality may be limited.",
+    "Only one camera angle is present; collect angled data if possible.",
+    "Excluded non-v1 labels: {'side_lean': 380}",
+    "Skipped incompatible files: [{'file': 'unshrimp_dataset_20260519T041241Z_raw.json', 'reason': 'UNSUPPORTED_SCHEMA: 1.0.0'}]"
+  ]
+}
