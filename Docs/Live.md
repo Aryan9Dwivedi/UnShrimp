@@ -12,6 +12,4 @@ These are the focused next tasks for the live UnShrimp extension build.
 - Prepare Chrome Web Store requirements: final icon assets, screenshots, description, privacy wording, and permission justification.
 - Submit for Chrome Extension Store review after the local demo build is stable.
 
-## Notes
 
-Keep the scope tight. Do not add major new features until calibration, scoring, and alerts feel reliable in normal seated laptop use.
