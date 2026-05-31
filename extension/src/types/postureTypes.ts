@@ -60,6 +60,7 @@ export type PostureMonitorState = {
   poseConfidence: number;
   fps: number;
   result: PredictionResult;
+  activeRoast: string | null;
   calibrationState: CalibrationState;
   calibrationCountdown: number | null;
   isCalibrated: boolean;

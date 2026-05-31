@@ -10,11 +10,13 @@ import type {
   PredictionResult
 } from "../types/postureTypes";
 import { POSTURE_MESSAGES } from "../constants/posture";
+import { pickNotificationTitle, pickRoast } from "../constants/roasts";
 import { loadBrowserModel, predictPosture, type BrowserModel } from "../utils/modelInference";
 import { buildPoseFeatures } from "../utils/postureFeatures";
 import {
   combinePostureDecision,
   getSmoothedLabel,
+  isBadPostureLabel,
   isSustainedBadPosture
 } from "../utils/postureDecision";
 import { clearPoseOverlay, drawPoseOverlay } from "../utils/poseDrawing";
@@ -64,6 +66,7 @@ export function usePostureMonitor({
   const [calibrationCountdown, setCalibrationCountdown] = useState<number | null>(null);
   const [baseline, setBaseline] = useState<CalibrationBaseline | null>(readStoredBaseline);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [activeRoast, setActiveRoast] = useState<string | null>(null);
 
   const animationRef = useRef<number | null>(null);
   const lastInferenceRef = useRef(0);
@@ -77,6 +80,8 @@ export function usePostureMonitor({
   const calibrationTimerRef = useRef<number | null>(null);
   const predictionBufferRef = useRef<Array<{ label: PostureLabel; timestamp: number }>>([]);
   const lastAlertRef = useRef(0);
+  const lastRoastRef = useRef<string | undefined>(undefined);
+  const wasBadPostureRef = useRef(false);
   const smoothedScoreRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -227,6 +232,8 @@ export function usePostureMonitor({
 
       if (!poseBuild.ok) {
         setPoseStatus(poseBuild.reason === "LOW_CONFIDENCE" ? "low_confidence" : "no_pose");
+        wasBadPostureRef.current = false;
+        setActiveRoast(null);
         setResult({
           ...INITIAL_RESULT,
           message: poseBuild.reason === "NO_POSE" ? "No seated pose is visible yet." : POSTURE_MESSAGES.uncertain
@@ -265,6 +272,18 @@ export function usePostureMonitor({
       smoothedScoreRef.current = displayResult.score;
       setResult(displayResult);
 
+      const isBadPosture =
+        Boolean(baselineRef.current) && isBadPostureLabel(displayResult.label);
+
+      if (isBadPosture && !wasBadPostureRef.current) {
+        const roast = pickRoast(lastRoastRef.current);
+        lastRoastRef.current = roast;
+        setActiveRoast(roast);
+      } else if (!isBadPosture && wasBadPostureRef.current) {
+        setActiveRoast(null);
+      }
+      wasBadPostureRef.current = isBadPosture;
+
       if (
         !isCalibratingRef.current &&
         baselineRef.current &&
@@ -273,10 +292,13 @@ export function usePostureMonitor({
         now - lastAlertRef.current > ALERT_COOLDOWN_MS
       ) {
         lastAlertRef.current = now;
+        const roast = pickRoast(lastRoastRef.current);
+        lastRoastRef.current = roast;
+        setActiveRoast(roast);
         if (soundEnabledRef.current) {
           playAlertSoundRef.current();
         }
-        createPostureNotification(nextResult.message);
+        createPostureNotification(roast);
       }
     },
     []
@@ -333,6 +355,8 @@ export function usePostureMonitor({
         localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(nextBaseline));
         setCalibrationState("calibrated");
         setCalibrationCountdown(null);
+        wasBadPostureRef.current = false;
+        setActiveRoast(null);
         setResult({
           label: "good_posture",
           nnLabel: "good_posture",
@@ -362,6 +386,7 @@ export function usePostureMonitor({
     poseConfidence,
     fps,
     result,
+    activeRoast,
     calibrationState,
     calibrationCountdown,
     isCalibrated: Boolean(baseline),
@@ -411,7 +436,7 @@ function createPostureNotification(message: string) {
   chrome.notifications.create({
     type: "basic",
     iconUrl: "icons/icon128.png",
-    title: "UnShrimp posture check",
+    title: pickNotificationTitle(),
     message
   });
 }

@@ -7,6 +7,7 @@ type SoundSettingsProps = {
   onSoundEnabledChange: (enabled: boolean) => void;
   onSelectedSoundChange: (sound: AlertSound) => void;
   onTestSound: () => void;
+  embedded?: boolean;
 };
 
 export function SoundSettings({
@@ -14,25 +15,22 @@ export function SoundSettings({
   selectedSound,
   onSoundEnabledChange,
   onSelectedSoundChange,
-  onTestSound
+  onTestSound,
+  embedded = false
 }: SoundSettingsProps) {
-  return (
-    <section className="panel">
-      <div className="panel-heading">
-        <h2>Sound Alerts</h2>
-      </div>
-
-      <label className="checkbox-row">
+  const content = (
+    <div className="sound-settings-content">
+      <label className="toggle-row">
         <input
           type="checkbox"
           checked={soundEnabled}
           onChange={(event) => onSoundEnabledChange(event.target.checked)}
         />
-        <span>Sound alerts</span>
+        <span>Play a sound after sustained bad posture</span>
       </label>
 
       <label className="field-label" htmlFor="alert-sound">
-        Alert Sound
+        Alert tone
       </label>
       <select
         id="alert-sound"
@@ -48,13 +46,29 @@ export function SoundSettings({
       </select>
 
       <button
-        className="button secondary full-width"
+        className="button button-secondary full-width"
         type="button"
         onClick={onTestSound}
         disabled={!soundEnabled || selectedSound === "none"}
       >
-        Test Sound
+        Test alert sound 🎵
       </button>
+      <p className="helper-caption">Preview the shame (it helps).</p>
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <section className="surface-card sound-card">
+      <div className="card-title-row">
+        <div className="card-title-group">
+          <h2>🚨 Anti-Shrimp Protocols</h2>
+        </div>
+      </div>
+      {content}
     </section>
   );
 }

@@ -8,6 +8,10 @@ import type {
 import type { ModelPrediction } from "./modelInference";
 
 const BAD_LABELS = new Set<PostureLabel>(["shrimp_slouch", "forward_lean", "looking_down"]);
+
+export function isBadPostureLabel(label: PostureLabel): boolean {
+  return BAD_LABELS.has(label);
+}
 const GOOD_BASELINE_TOLERANCE = 0.38;
 
 export function combinePostureDecision(

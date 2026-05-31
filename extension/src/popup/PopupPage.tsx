@@ -1,3 +1,6 @@
+import { BRAND_IMAGES } from "../utils/brandAssets";
+import { ShrimpLogo } from "../components/ShrimpArt";
+
 const MONITOR_PAGE_PATH = "src/monitor/monitor.html";
 
 export function PopupPage() {
@@ -13,12 +16,15 @@ export function PopupPage() {
   return (
     <main className="popup-shell">
       <section className="popup-card">
-        <p className="eyebrow">Posture monitor ready</p>
-        <h1>UnShrimp</h1>
-        <p className="popup-copy">
-          Open the monitor page to start camera-based posture tracking.
-        </p>
-        <button className="button primary full-width" type="button" onClick={openMonitor}>
+        <div className="popup-brand">
+          <ShrimpLogo className="popup-logo-image" />
+          <div>
+            <p className="eyebrow">UnShrimp</p>
+            <h1>Posture monitor</h1>
+          </div>
+        </div>
+        <p className="popup-copy">Open the monitor page to start camera-based posture tracking.</p>
+        <button className="button button-primary full-width" type="button" onClick={openMonitor}>
           Open Monitor
         </button>
         <p className="fine-print">Runs locally in your browser</p>
