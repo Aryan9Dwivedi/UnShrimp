@@ -1,14 +1,16 @@
+import { useRef } from "react";
 import { CalibrationPanel } from "../components/CalibrationPanel";
 import { DebugStatusPanel } from "../components/DebugStatusPanel";
 import { PostureStatusPanel } from "../components/PostureStatusPanel";
 import { SoundSettings } from "../components/SoundSettings";
 import { WebcamPanel } from "../components/WebcamPanel";
-import { useCalibration } from "../hooks/useCalibration";
 import { useCamera } from "../hooks/useCamera";
+import { usePostureMonitor } from "../hooks/usePostureMonitor";
 import { useSoundSettings } from "../hooks/useSoundSettings";
 import type { AppState } from "../types/appTypes";
 
 export function MonitorPage() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const {
     videoRef,
     cameraState,
@@ -17,20 +19,26 @@ export function MonitorPage() {
     startCamera,
     stopCamera
   } = useCamera();
-  const {
-    calibrationState,
-    countdown,
-    error: calibrationError,
-    startCalibration
-  } = useCalibration();
   const soundSettings = useSoundSettings();
+  const postureMonitor = usePostureMonitor({
+    videoRef,
+    canvasRef,
+    cameraState,
+    soundEnabled: soundSettings.soundEnabled,
+    playAlertSound: soundSettings.playAlertSound
+  });
 
-  const error = cameraError ?? calibrationError;
+  const error = cameraError;
   const hasActivity =
     cameraState !== "camera_off" ||
-    calibrationState !== "not_calibrated" ||
+    postureMonitor.calibrationState !== "not_calibrated" ||
     monitoringState !== "not_monitoring";
-  const appState: AppState = error ? "error" : hasActivity ? "ready" : "idle";
+  const appState: AppState =
+    error || postureMonitor.modelStatus === "error" || postureMonitor.poseStatus === "error"
+      ? "error"
+      : hasActivity
+        ? "ready"
+        : "idle";
 
   const isCameraStarting = cameraState === "camera_requesting_permission";
   const isCameraActive = cameraState === "camera_active";
@@ -40,14 +48,14 @@ export function MonitorPage() {
       <header className="app-header">
         <div>
           <p className="eyebrow">UnShrimp</p>
-          <h1>Real-time posture monitoring</h1>
+          <h1>Posture monitor</h1>
         </div>
         <span className={`state-pill ${appState}`}>{appState}</span>
       </header>
 
-      {error && (
+      {(error || postureMonitor.errorMessage) && (
         <section className="error-banner" role="alert">
-          {error.message}
+          {error?.message ?? postureMonitor.errorMessage}
         </section>
       )}
 
@@ -55,13 +63,14 @@ export function MonitorPage() {
         <section className="main-column">
           <WebcamPanel
             videoRef={videoRef}
+            canvasRef={canvasRef}
             cameraState={cameraState}
             errorMessage={cameraError?.message ?? null}
           />
 
           <section className="panel">
             <div className="panel-heading">
-              <h2>Monitoring Controls</h2>
+              <h2>Controls</h2>
             </div>
             <div className="button-row">
               <button
@@ -85,12 +94,16 @@ export function MonitorPage() {
         </section>
 
         <aside className="side-column">
-          <CalibrationPanel
-            calibrationState={calibrationState}
-            countdown={countdown}
-            onCalibrate={startCalibration}
+          <PostureStatusPanel
+            result={postureMonitor.result}
+            isMonitoring={monitoringState === "monitoring"}
+            isCalibrated={postureMonitor.isCalibrated}
           />
-          <PostureStatusPanel monitoringState={monitoringState} />
+          <CalibrationPanel
+            calibrationState={postureMonitor.calibrationState}
+            countdown={postureMonitor.calibrationCountdown}
+            onCalibrate={postureMonitor.startCalibration}
+          />
           <SoundSettings
             soundEnabled={soundSettings.soundEnabled}
             selectedSound={soundSettings.selectedSound}
@@ -101,11 +114,16 @@ export function MonitorPage() {
           <DebugStatusPanel
             appState={appState}
             cameraState={cameraState}
-            calibrationState={calibrationState}
+            calibrationState={postureMonitor.calibrationState}
             monitoringState={monitoringState}
             soundEnabled={soundSettings.soundEnabled}
             selectedSound={soundSettings.selectedSound}
+            modelStatus={postureMonitor.modelStatus}
+            poseStatus={postureMonitor.poseStatus}
+            poseConfidence={postureMonitor.poseConfidence}
+            fps={postureMonitor.fps}
             error={error}
+            pipelineError={postureMonitor.errorMessage}
           />
         </aside>
       </div>

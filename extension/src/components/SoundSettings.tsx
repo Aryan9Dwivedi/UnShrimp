@@ -28,7 +28,7 @@ export function SoundSettings({
           checked={soundEnabled}
           onChange={(event) => onSoundEnabledChange(event.target.checked)}
         />
-        <span>Enable sound alerts</span>
+        <span>Sound alerts</span>
       </label>
 
       <label className="field-label" htmlFor="alert-sound">

@@ -8,7 +8,7 @@ type AudioContextConstructor = typeof AudioContext;
 function readStoredSettings(): SoundSettingsState {
   const fallback: SoundSettingsState = {
     soundEnabled: true,
-    selectedSound: "soft_beep"
+    selectedSound: "faaah"
   };
 
   try {
@@ -34,8 +34,9 @@ function readStoredSettings(): SoundSettingsState {
 
 function isAlertSound(value: unknown): value is AlertSound {
   return (
-    value === "soft_beep" ||
-    value === "double_beep" ||
+    value === "faaah" ||
+    value === "ho_ho_ho" ||
+    value === "ronny" ||
     value === "chime" ||
     value === "none"
   );
@@ -45,15 +46,17 @@ function playTone(
   audioContext: AudioContext,
   frequency: number,
   startTime: number,
-  duration: number
+  duration: number,
+  gain = 0.22,
+  type: OscillatorType = "sine"
 ) {
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
 
-  oscillator.type = "sine";
+  oscillator.type = type;
   oscillator.frequency.setValueAtTime(frequency, startTime);
   gainNode.gain.setValueAtTime(0.0001, startTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.08, startTime + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(gain, startTime + 0.015);
   gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
   oscillator.connect(gainNode);
@@ -61,6 +64,12 @@ function playTone(
   oscillator.start(startTime);
   oscillator.stop(startTime + duration + 0.02);
 }
+
+const SOUND_FILES: Partial<Record<AlertSound, string>> = {
+  faaah: "sounds/faaah.mp3",
+  ho_ho_ho: "sounds/ho-ho-ho.mp3",
+  ronny: "sounds/ronny.mp3"
+};
 
 export function useSoundSettings() {
   const [storedSettings] = useState(readStoredSettings);
@@ -77,8 +86,16 @@ export function useSoundSettings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSettings));
   }, [soundEnabled, selectedSound]);
 
-  const playTestSound = useCallback(() => {
+  const playSelectedSound = useCallback(() => {
     if (!soundEnabled || selectedSound === "none") {
+      return;
+    }
+
+    const soundFile = SOUND_FILES[selectedSound];
+    if (soundFile) {
+      const audio = new Audio(resolveAssetUrl(soundFile));
+      audio.volume = 1;
+      void audio.play().catch(() => undefined);
       return;
     }
 
@@ -94,22 +111,10 @@ export function useSoundSettings() {
     const audioContext = new AudioContextCtor();
     const now = audioContext.currentTime;
 
-    if (selectedSound === "soft_beep") {
-      playTone(audioContext, 620, now, 0.16);
-      window.setTimeout(() => void audioContext.close(), 260);
-      return;
-    }
-
-    if (selectedSound === "double_beep") {
-      playTone(audioContext, 620, now, 0.14);
-      playTone(audioContext, 620, now + 0.24, 0.14);
-      window.setTimeout(() => void audioContext.close(), 520);
-      return;
-    }
-
-    playTone(audioContext, 520, now, 0.12);
-    playTone(audioContext, 780, now + 0.16, 0.18);
-    window.setTimeout(() => void audioContext.close(), 520);
+    playTone(audioContext, 660, now, 0.1, 0.28, "triangle");
+    playTone(audioContext, 880, now + 0.14, 0.1, 0.28, "triangle");
+    playTone(audioContext, 520, now + 0.28, 0.16, 0.22, "triangle");
+    window.setTimeout(() => void audioContext.close(), 720);
   }, [selectedSound, soundEnabled]);
 
   return {
@@ -117,6 +122,15 @@ export function useSoundSettings() {
     selectedSound,
     setSoundEnabled,
     setSelectedSound,
-    playTestSound
+    playTestSound: playSelectedSound,
+    playAlertSound: playSelectedSound
   };
+}
+
+function resolveAssetUrl(path: string) {
+  if ("chrome" in window && chrome.runtime?.getURL) {
+    return chrome.runtime.getURL(path);
+  }
+
+  return `/${path}`;
 }

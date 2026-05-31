@@ -3,6 +3,7 @@ import type { CameraState } from "../types/appTypes";
 
 type WebcamPanelProps = {
   videoRef: RefObject<HTMLVideoElement>;
+  canvasRef: RefObject<HTMLCanvasElement>;
   cameraState: CameraState;
   errorMessage: string | null;
 };
@@ -19,13 +20,18 @@ function getCameraMessage(cameraState: CameraState, errorMessage: string | null)
   return "Camera is off. Click Start Monitoring to begin.";
 }
 
-export function WebcamPanel({ videoRef, cameraState, errorMessage }: WebcamPanelProps) {
+export function WebcamPanel({
+  videoRef,
+  canvasRef,
+  cameraState,
+  errorMessage
+}: WebcamPanelProps) {
   const isCameraActive = cameraState === "camera_active";
 
   return (
     <section className="panel webcam-panel">
       <div className="panel-heading">
-        <h2>Webcam</h2>
+        <h2>Preview</h2>
         <span className={`status-chip ${cameraState}`}>{cameraState}</span>
       </div>
       <div className="webcam-frame">
@@ -35,6 +41,11 @@ export function WebcamPanel({ videoRef, cameraState, errorMessage }: WebcamPanel
           autoPlay
           muted
           playsInline
+        />
+        <canvas
+          ref={canvasRef}
+          className={`pose-canvas ${isCameraActive ? "visible" : ""}`}
+          aria-hidden="true"
         />
         {!isCameraActive && (
           <div className="camera-placeholder">
