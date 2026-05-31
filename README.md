@@ -49,12 +49,13 @@ This keeps the first neural network aligned with the real Chrome extension use c
 
 ## Current ML Training Status
 
-The first model-ready dataset and training scaffold are prepared.
+The first model-ready dataset, training scaffold, and saved NN model are prepared.
 
 - `data/gmo/` stores the processed train, validation, and test splits copied from the GMO dataset output.
 - `ml/` stores the data-loading utilities, neural-network training script, evaluation script, hybrid helper logic, and Python requirements.
-- `ml/Eval/` is reserved for training curves, confusion matrices, reports, and metrics after training.
-- `models/unshrimp_posture_nn/` is reserved for the trained model and preprocessing metadata that will later be wired into the Chrome extension.
+- `ml/Eval/` stores training curves, confusion matrices, reports, metrics, and saved-model recheck notes.
+- `models/unshrimp_posture_nn/` stores the trained model and preprocessing metadata.
+- `extension/public/model/unshrimp_posture_nn_browser.json` is the browser-ready NN export used by the Chrome extension.
 
 Current dataset notes:
 
@@ -62,6 +63,24 @@ Current dataset notes:
 - Training data includes conservative augmentation.
 - Validation and test data are real collected samples only.
 - The first NN architecture follows the research direction: three hidden layers, 100 units each, ReLU, Adam, learning rate `0.001`, and up to 100 epochs.
+- The saved-model recheck reached about `99.4%` test accuracy on the current split, with the caveat that this is not yet an unseen-person evaluation.
+
+## Current Extension Status
+
+The Chrome extension has moved beyond boilerplate. It now includes:
+
+- Webcam monitor page.
+- Local MediaPipe Pose Landmarker integration.
+- Skeleton and landmark overlay.
+- Shoulder-based normalization.
+- Browser-side NN inference.
+- Five-second personalized calibration.
+- Hybrid NN plus rule feedback.
+- Posture score and correction message.
+- Sound toggle with generated alert sounds.
+- Chrome notification for sustained bad posture.
+
+The extension should be treated as a working integration build, not final production. The monitor page must stay open while posture monitoring is active.
 
 ## Locked Final Demo Goal
 

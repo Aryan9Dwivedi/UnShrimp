@@ -1,16 +1,16 @@
 # UnShrimp Extension Setup
 
-This guide explains how to run and verify the UnShrimp Chrome extension foundation on Windows or macOS.
+This guide explains how to build, load, reload, and test the UnShrimp Chrome extension on Windows or macOS.
 
 ## Prerequisites
 
-Install these first:
+Install:
 
 - Google Chrome
 - Node.js LTS or newer
 - Git
 
-To check Node and npm:
+Check Node and npm:
 
 ```bash
 node -v
@@ -19,13 +19,11 @@ npm -v
 
 ## Project Folder
 
-All extension code lives inside:
+All extension code lives in:
 
 ```text
 extension/
 ```
-
-Run extension commands from that folder.
 
 Windows:
 
@@ -45,27 +43,13 @@ cd path/to/UnShrimp/extension
 npm install
 ```
 
-## Run In Development Mode
-
-```bash
-npm run dev
-```
-
-Open the local monitor page:
-
-```text
-http://127.0.0.1:5173/src/monitor/monitor.html
-```
-
-This is useful while editing the UI, but Chrome extension testing should use the production build.
-
-## Build The Chrome Extension
+## Build The Extension
 
 ```bash
 npm run build
 ```
 
-This creates:
+This creates the Chrome-loadable folder:
 
 ```text
 extension/dist/
@@ -77,71 +61,81 @@ extension/dist/
 2. Go to `chrome://extensions`.
 3. Turn on **Developer mode**.
 4. Click **Load unpacked**.
-5. Select the `dist` folder inside `extension`.
+5. Select the `dist` folder.
 
-Windows folder to select:
+Windows folder:
 
 ```text
 C:\Code Base\UnShrimp\extension\dist
 ```
 
-macOS folder to select:
+macOS folder:
 
 ```text
 path/to/UnShrimp/extension/dist
 ```
 
-## Verify The Extension
+## Reload After Code Changes
 
-1. Click the UnShrimp extension icon in Chrome.
+After every code change:
+
+```bash
+npm run build
+```
+
+Then in `chrome://extensions`:
+
+1. Find UnShrimp.
+2. Click the reload icon on the extension card.
+3. Close old UnShrimp monitor tabs.
+4. Open the popup again.
+5. Click **Open Monitor**.
+
+## Verify The Live Posture Flow
+
+1. Click the UnShrimp extension icon.
 2. Click **Open Monitor**.
 3. Click **Start Monitoring**.
 4. Allow webcam permission.
-5. Confirm the webcam feed appears.
-6. Confirm debug status shows:
+5. Confirm the webcam preview appears.
+6. Confirm pose landmarks and skeleton lines appear over your head and shoulders.
+7. Sit normally and click **Calibrate**.
+8. Hold normal posture until the countdown ends.
+9. Confirm calibration says the personal baseline is saved.
+10. Slouch, lean forward, or look down for several seconds.
+11. Confirm the status, score, and message update.
+12. Confirm the selected alert sound plays after sustained bad posture.
+13. Click **Stop Monitoring** and confirm the camera turns off.
 
-```text
-Camera State: camera_active
-Monitoring State: monitoring
-```
+## What Runs Locally
 
-7. Click **Stop Monitoring**.
-8. Confirm the webcam turns off.
-9. Click **Calibrate Posture**.
-10. Confirm the countdown runs and status becomes `calibrated`.
-11. Choose an alert sound and click **Test Sound**.
+The extension ships local assets inside `dist/`:
 
-## Current Scope
+- MediaPipe Pose Landmarker model
+- MediaPipe WASM runtime
+- Browser-exported UnShrimp NN model JSON
 
-Implemented in this foundation:
+The extension does not upload webcam frames, save images, or save videos.
 
-- Popup page
-- Monitor page
-- Webcam start/stop
-- Placeholder calibration countdown
-- Sound alert settings
-- Debug/status display
+## Background Use
 
-Not included yet:
+For this version, keep the UnShrimp monitor page open while monitoring. You can switch to other apps while it runs, and bad posture can trigger sound plus a Chrome notification.
 
-- MediaPipe
-- Pose landmark detection
-- Skeleton overlay
-- Real posture classification
-- Machine learning
+Do not close the monitor page if you want posture detection to continue.
 
 ## Troubleshooting
 
-If the extension does not update after code changes:
+If the model or pose status shows an error:
 
-1. Run `npm run build` again.
-2. Go to `chrome://extensions`.
-3. Click the reload icon on the UnShrimp extension card.
-4. Reopen the popup and monitor page.
+- Run `npm run build` again.
+- Reload the extension in `chrome://extensions`.
+- Make sure `dist/model/unshrimp_posture_nn_browser.json` exists.
+- Make sure `dist/models/pose_landmarker_lite.task` exists.
+- Make sure `dist/wasm/` contains MediaPipe WASM files.
 
 If the webcam does not start:
 
 - Make sure Chrome has camera permission.
 - Make sure no other app is using the camera.
-- Try reloading the monitor page.
-- Try removing and loading the unpacked extension again.
+- Reload the monitor page.
+- Remove and load the unpacked extension again if needed.

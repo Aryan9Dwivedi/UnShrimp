@@ -1,33 +1,51 @@
-import type { MonitoringState } from "../types/appTypes";
+import { POSTURE_LABEL_TEXT } from "../constants/posture";
+import type { PredictionResult } from "../types/postureTypes";
 
 type PostureStatusPanelProps = {
-  monitoringState: MonitoringState;
+  result: PredictionResult;
+  isMonitoring: boolean;
+  isCalibrated: boolean;
 };
 
-export function PostureStatusPanel({ monitoringState }: PostureStatusPanelProps) {
-  const isMonitoring = monitoringState === "monitoring";
-
+export function PostureStatusPanel({
+  result,
+  isMonitoring,
+  isCalibrated
+}: PostureStatusPanelProps) {
   return (
-    <section className="panel">
+    <section className={`panel posture-panel posture-${result.label}`}>
       <div className="panel-heading">
-        <h2>Posture Feedback</h2>
+        <h2>Posture</h2>
+        <span className={`status-chip posture-chip ${result.label}`}>
+          {POSTURE_LABEL_TEXT[result.label]}
+        </span>
       </div>
-      <div className="metric-list">
-        <div className="metric-row">
-          <span>Status:</span>
-          <strong>{isMonitoring ? "Monitoring placeholder" : "Not monitoring"}</strong>
+
+      <div className="score-block">
+        <div className="score-number">{isMonitoring ? result.score : "--"}</div>
+        <div className="score-label">score</div>
+      </div>
+
+      <div className="score-bar" aria-hidden="true">
+        <span style={{ width: `${isMonitoring ? result.score : 0}%` }} />
+      </div>
+
+      <p className="posture-message">
+        {isMonitoring ? result.message : "Start monitoring to begin posture feedback."}
+      </p>
+
+      <div className="compact-facts">
+        <div>
+          <span>NN</span>
+          <strong>{POSTURE_LABEL_TEXT[result.nnLabel]}</strong>
         </div>
-        <div className="metric-row">
-          <span>Score:</span>
-          <strong>--</strong>
+        <div>
+          <span>Rule</span>
+          <strong>{POSTURE_LABEL_TEXT[result.ruleLabel]}</strong>
         </div>
-        <div className="metric-row stacked">
-          <span>Message:</span>
-          <strong>
-            {isMonitoring
-              ? "Pose detection will be added in the next foundation step."
-              : "Start monitoring to begin posture feedback."}
-          </strong>
+        <div>
+          <span>Calibration</span>
+          <strong>{isCalibrated ? "ready" : "needed"}</strong>
         </div>
       </div>
     </section>

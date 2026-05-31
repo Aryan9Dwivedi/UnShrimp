@@ -26,14 +26,14 @@ export function CalibrationPanel({
         onClick={onCalibrate}
         disabled={isCalibrating}
       >
-        Calibrate Posture
+        {calibrationState === "calibrated" ? "Recalibrate" : "Calibrate"}
       </button>
 
       <div className="calibration-status">
-        {isCalibrating && <p>Hold normal posture. Countdown: {countdown}</p>}
-        {calibrationState === "calibrated" && <p>Calibrated</p>}
-        {calibrationState === "not_calibrated" && <p>Not calibrated yet.</p>}
-        {calibrationState === "calibration_error" && <p>Calibration failed.</p>}
+        {isCalibrating && <p>Sit normally and hold still: {countdown}</p>}
+        {calibrationState === "calibrated" && <p>Personal baseline saved.</p>}
+        {calibrationState === "not_calibrated" && <p>Calibrate once after starting the camera.</p>}
+        {calibrationState === "calibration_error" && <p>Calibration needs a clear seated pose.</p>}
       </div>
     </section>
   );

@@ -8,7 +8,7 @@ type AudioContextConstructor = typeof AudioContext;
 function readStoredSettings(): SoundSettingsState {
   const fallback: SoundSettingsState = {
     soundEnabled: true,
-    selectedSound: "soft_beep"
+    selectedSound: "faaah"
   };
 
   try {
@@ -34,9 +34,9 @@ function readStoredSettings(): SoundSettingsState {
 
 function isAlertSound(value: unknown): value is AlertSound {
   return (
-    value === "soft_beep" ||
-    value === "double_beep" ||
-    value === "chime" ||
+    value === "faaah" ||
+    value === "desk_honk" ||
+    value === "arcade_panic" ||
     value === "none"
   );
 }
@@ -45,15 +45,17 @@ function playTone(
   audioContext: AudioContext,
   frequency: number,
   startTime: number,
-  duration: number
+  duration: number,
+  gain = 0.22,
+  type: OscillatorType = "sine"
 ) {
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
 
-  oscillator.type = "sine";
+  oscillator.type = type;
   oscillator.frequency.setValueAtTime(frequency, startTime);
   gainNode.gain.setValueAtTime(0.0001, startTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.08, startTime + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(gain, startTime + 0.015);
   gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
   oscillator.connect(gainNode);
@@ -77,7 +79,7 @@ export function useSoundSettings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSettings));
   }, [soundEnabled, selectedSound]);
 
-  const playTestSound = useCallback(() => {
+  const playSelectedSound = useCallback(() => {
     if (!soundEnabled || selectedSound === "none") {
       return;
     }
@@ -94,22 +96,24 @@ export function useSoundSettings() {
     const audioContext = new AudioContextCtor();
     const now = audioContext.currentTime;
 
-    if (selectedSound === "soft_beep") {
-      playTone(audioContext, 620, now, 0.16);
-      window.setTimeout(() => void audioContext.close(), 260);
+    if (selectedSound === "faaah") {
+      playTone(audioContext, 740, now, 0.48, 0.32, "sawtooth");
+      playTone(audioContext, 185, now + 0.03, 0.48, 0.18, "square");
+      window.setTimeout(() => void audioContext.close(), 650);
       return;
     }
 
-    if (selectedSound === "double_beep") {
-      playTone(audioContext, 620, now, 0.14);
-      playTone(audioContext, 620, now + 0.24, 0.14);
-      window.setTimeout(() => void audioContext.close(), 520);
+    if (selectedSound === "desk_honk") {
+      playTone(audioContext, 220, now, 0.18, 0.3, "square");
+      playTone(audioContext, 165, now + 0.18, 0.24, 0.28, "square");
+      window.setTimeout(() => void audioContext.close(), 620);
       return;
     }
 
-    playTone(audioContext, 520, now, 0.12);
-    playTone(audioContext, 780, now + 0.16, 0.18);
-    window.setTimeout(() => void audioContext.close(), 520);
+    playTone(audioContext, 660, now, 0.1, 0.28, "triangle");
+    playTone(audioContext, 880, now + 0.14, 0.1, 0.28, "triangle");
+    playTone(audioContext, 520, now + 0.28, 0.16, 0.28, "sawtooth");
+    window.setTimeout(() => void audioContext.close(), 720);
   }, [selectedSound, soundEnabled]);
 
   return {
@@ -117,6 +121,7 @@ export function useSoundSettings() {
     selectedSound,
     setSoundEnabled,
     setSelectedSound,
-    playTestSound
+    playTestSound: playSelectedSound,
+    playAlertSound: playSelectedSound
   };
 }

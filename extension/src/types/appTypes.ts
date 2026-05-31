@@ -14,13 +14,15 @@ export type CalibrationState =
 
 export type MonitoringState = "not_monitoring" | "monitoring" | "paused";
 
-export type AlertSound = "soft_beep" | "double_beep" | "chime" | "none";
+export type AlertSound = "faaah" | "desk_honk" | "arcade_panic" | "none";
 
 export type AppErrorCode =
   | "CAMERA_PERMISSION_DENIED"
   | "CAMERA_NOT_FOUND"
   | "CAMERA_START_FAILED"
-  | "CALIBRATION_FAILED";
+  | "CALIBRATION_FAILED"
+  | "MODEL_LOAD_FAILED"
+  | "POSE_MODEL_LOAD_FAILED";
 
 export type AppError = {
   code: AppErrorCode;
@@ -33,8 +35,8 @@ export type SoundSettingsState = {
 };
 
 export const SOUND_OPTIONS: Array<{ value: AlertSound; label: string }> = [
-  { value: "soft_beep", label: "Soft Beep" },
-  { value: "double_beep", label: "Double Beep" },
-  { value: "chime", label: "Chime" },
+  { value: "faaah", label: "FAAAAAHHH" },
+  { value: "desk_honk", label: "Desk Honk" },
+  { value: "arcade_panic", label: "Arcade Panic" },
   { value: "none", label: "None" }
 ];
