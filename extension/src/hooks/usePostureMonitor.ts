@@ -23,6 +23,7 @@ const BASELINE_STORAGE_KEY = "unshrimp.calibrationBaseline.v1";
 const INFERENCE_INTERVAL_MS = 200;
 const CALIBRATION_SECONDS = 5;
 const ALERT_COOLDOWN_MS = 15000;
+const MIN_CALIBRATION_SAMPLES = 3;
 
 const INITIAL_RESULT: PredictionResult = {
   label: "uncertain",
@@ -69,9 +70,22 @@ export function usePostureMonitor({
   const lastFpsRef = useRef(0);
   const latestFeaturesRef = useRef<PostureFeatures | null>(null);
   const calibrationSamplesRef = useRef<PostureFeatures[]>([]);
+  const isCalibratingRef = useRef(false);
+  const baselineRef = useRef<CalibrationBaseline | null>(baseline);
+  const soundEnabledRef = useRef(soundEnabled);
+  const playAlertSoundRef = useRef(playAlertSound);
   const calibrationTimerRef = useRef<number | null>(null);
   const predictionBufferRef = useRef<Array<{ label: PostureLabel; timestamp: number }>>([]);
   const lastAlertRef = useRef(0);
+
+  useEffect(() => {
+    baselineRef.current = baseline;
+  }, [baseline]);
+
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+    playAlertSoundRef.current = playAlertSound;
+  }, [playAlertSound, soundEnabled]);
 
   useEffect(() => {
     let isMounted = true;
@@ -219,10 +233,9 @@ export function usePostureMonitor({
       }
 
       latestFeaturesRef.current = poseBuild.features;
-      calibrationSamplesRef.current =
-        calibrationState === "calibrating"
-          ? [...calibrationSamplesRef.current, poseBuild.features]
-          : calibrationSamplesRef.current;
+      if (isCalibratingRef.current) {
+        calibrationSamplesRef.current = [...calibrationSamplesRef.current, poseBuild.features];
+      }
       setPoseStatus("ready");
 
       const prediction = predictPosture(browserModel, poseBuild.featureValues);
@@ -231,7 +244,12 @@ export function usePostureMonitor({
         { label: prediction.label, timestamp: now }
       ];
       const smoothedLabel = getSmoothedLabel(predictionBufferRef.current, now);
-      const nextResult = combinePostureDecision(prediction, poseBuild.features, baseline, smoothedLabel);
+      const nextResult = combinePostureDecision(
+        prediction,
+        poseBuild.features,
+        baselineRef.current,
+        smoothedLabel
+      );
       setResult(nextResult);
 
       if (
@@ -240,13 +258,13 @@ export function usePostureMonitor({
         now - lastAlertRef.current > ALERT_COOLDOWN_MS
       ) {
         lastAlertRef.current = now;
-        if (soundEnabled) {
-          playAlertSound();
+        if (soundEnabledRef.current) {
+          playAlertSoundRef.current();
         }
         createPostureNotification(nextResult.message);
       }
     },
-    [baseline, calibrationState, playAlertSound, soundEnabled]
+    []
   );
 
   const startCalibration = useCallback(() => {
@@ -263,7 +281,8 @@ export function usePostureMonitor({
     setErrorMessage(null);
     setCalibrationState("calibrating");
     setCalibrationCountdown(CALIBRATION_SECONDS);
-    calibrationSamplesRef.current = [];
+    isCalibratingRef.current = true;
+    calibrationSamplesRef.current = [latestFeaturesRef.current];
 
     let remaining = CALIBRATION_SECONDS;
     calibrationTimerRef.current = window.setInterval(() => {
@@ -277,10 +296,14 @@ export function usePostureMonitor({
         }
 
         const samples = calibrationSamplesRef.current;
-        if (samples.length < 6) {
+        isCalibratingRef.current = false;
+
+        if (samples.length < MIN_CALIBRATION_SAMPLES) {
           setCalibrationState("calibration_error");
           setCalibrationCountdown(null);
-          setErrorMessage("Calibration needs a few stable pose samples. Sit centered and try again.");
+          setErrorMessage(
+            "Calibration needs a clear head-and-shoulders pose. Keep the monitor page open, sit centered, and try again."
+          );
           return;
         }
 
@@ -289,6 +312,7 @@ export function usePostureMonitor({
           features: averageFeatures(samples)
         };
         setBaseline(nextBaseline);
+        baselineRef.current = nextBaseline;
         localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(nextBaseline));
         setCalibrationState("calibrated");
         setCalibrationCountdown(null);
@@ -301,6 +325,7 @@ export function usePostureMonitor({
       if (calibrationTimerRef.current !== null) {
         window.clearInterval(calibrationTimerRef.current);
       }
+      isCalibratingRef.current = false;
       poseLandmarker?.close();
     };
   }, [poseLandmarker]);
