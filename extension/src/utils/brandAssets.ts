@@ -20,8 +20,7 @@ export const BRAND_IMAGES = {
   postureUncertain: brandAsset("shrimp-wink.png"),
   postureGood: brandAsset("shrimp-happy.png"),
   postureBad: brandAsset("shrimp-laptop.png"),
-  calibration: brandAsset("shrimp-ruler.png"),
-  funFact: brandAsset("shrimp-thumbs-up.png")
+  calibration: brandAsset("shrimp-ruler.png")
 } as const;
 
 export function postureArt(label: PostureLabel, isMonitoring: boolean): string {

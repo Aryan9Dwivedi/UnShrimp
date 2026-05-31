@@ -138,7 +138,6 @@ export function MonitorPage() {
               </div>
               <SetupGuide step={setupStep} />
               <div className="fun-fact">
-                <img src={BRAND_IMAGES.funFact} alt="" aria-hidden="true" />
                 <p>Fun fact: Shrimp have incredible posture. You can too. Maybe. ♥</p>
               </div>
             </section>

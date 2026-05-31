@@ -581,12 +581,6 @@ button:disabled {
   background: var(--yellow-soft);
 }
 
-.fun-fact img {
-  width: 54px;
-  height: 54px;
-  object-fit: contain;
-}
-
 .fun-fact p {
   margin: 0;
   color: #7a6529;
