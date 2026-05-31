@@ -14,7 +14,7 @@ export type CalibrationState =
 
 export type MonitoringState = "not_monitoring" | "monitoring" | "paused";
 
-export type AlertSound = "faaah" | "desk_honk" | "arcade_panic" | "none";
+export type AlertSound = "faaah" | "ho_ho_ho" | "ronny" | "chime" | "none";
 
 export type AppErrorCode =
   | "CAMERA_PERMISSION_DENIED"
@@ -36,7 +36,8 @@ export type SoundSettingsState = {
 
 export const SOUND_OPTIONS: Array<{ value: AlertSound; label: string }> = [
   { value: "faaah", label: "FAAAAAHHH" },
-  { value: "desk_honk", label: "Desk Honk" },
-  { value: "arcade_panic", label: "Arcade Panic" },
+  { value: "ho_ho_ho", label: "Ho Ho Ho" },
+  { value: "ronny", label: "Ronny" },
+  { value: "chime", label: "Simple Chime" },
   { value: "none", label: "None" }
 ];

@@ -77,7 +77,7 @@ The Chrome extension has moved beyond boilerplate. It now includes:
 - Five-second personalized calibration.
 - Hybrid NN plus rule feedback.
 - Posture score and correction message.
-- Sound toggle with generated alert sounds.
+- Sound toggle with packaged alert sounds plus a simple generated chime.
 - Chrome notification for sustained bad posture.
 
 The extension should be treated as a working integration build, not final production. The monitor page must stay open while posture monitoring is active.

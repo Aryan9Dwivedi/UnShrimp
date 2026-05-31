@@ -35,8 +35,9 @@ function readStoredSettings(): SoundSettingsState {
 function isAlertSound(value: unknown): value is AlertSound {
   return (
     value === "faaah" ||
-    value === "desk_honk" ||
-    value === "arcade_panic" ||
+    value === "ho_ho_ho" ||
+    value === "ronny" ||
+    value === "chime" ||
     value === "none"
   );
 }
@@ -64,6 +65,12 @@ function playTone(
   oscillator.stop(startTime + duration + 0.02);
 }
 
+const SOUND_FILES: Partial<Record<AlertSound, string>> = {
+  faaah: "sounds/faaah.mp3",
+  ho_ho_ho: "sounds/ho-ho-ho.mp3",
+  ronny: "sounds/ronny.mp3"
+};
+
 export function useSoundSettings() {
   const [storedSettings] = useState(readStoredSettings);
   const [soundEnabled, setSoundEnabled] = useState(storedSettings.soundEnabled);
@@ -84,6 +91,14 @@ export function useSoundSettings() {
       return;
     }
 
+    const soundFile = SOUND_FILES[selectedSound];
+    if (soundFile) {
+      const audio = new Audio(resolveAssetUrl(soundFile));
+      audio.volume = 1;
+      void audio.play().catch(() => undefined);
+      return;
+    }
+
     const AudioContextCtor =
       window.AudioContext ??
       (window as Window & { webkitAudioContext?: AudioContextConstructor })
@@ -96,23 +111,9 @@ export function useSoundSettings() {
     const audioContext = new AudioContextCtor();
     const now = audioContext.currentTime;
 
-    if (selectedSound === "faaah") {
-      playTone(audioContext, 740, now, 0.48, 0.32, "sawtooth");
-      playTone(audioContext, 185, now + 0.03, 0.48, 0.18, "square");
-      window.setTimeout(() => void audioContext.close(), 650);
-      return;
-    }
-
-    if (selectedSound === "desk_honk") {
-      playTone(audioContext, 220, now, 0.18, 0.3, "square");
-      playTone(audioContext, 165, now + 0.18, 0.24, 0.28, "square");
-      window.setTimeout(() => void audioContext.close(), 620);
-      return;
-    }
-
     playTone(audioContext, 660, now, 0.1, 0.28, "triangle");
     playTone(audioContext, 880, now + 0.14, 0.1, 0.28, "triangle");
-    playTone(audioContext, 520, now + 0.28, 0.16, 0.28, "sawtooth");
+    playTone(audioContext, 520, now + 0.28, 0.16, 0.22, "triangle");
     window.setTimeout(() => void audioContext.close(), 720);
   }, [selectedSound, soundEnabled]);
 
@@ -124,4 +125,12 @@ export function useSoundSettings() {
     playTestSound: playSelectedSound,
     playAlertSound: playSelectedSound
   };
+}
+
+function resolveAssetUrl(path: string) {
+  if ("chrome" in window && chrome.runtime?.getURL) {
+    return chrome.runtime.getURL(path);
+  }
+
+  return `/${path}`;
 }
