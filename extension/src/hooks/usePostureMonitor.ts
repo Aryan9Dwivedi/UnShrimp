@@ -19,7 +19,7 @@ import {
 } from "../utils/postureDecision";
 import { clearPoseOverlay, drawPoseOverlay } from "../utils/poseDrawing";
 
-const BASELINE_STORAGE_KEY = "unshrimp.calibrationBaseline.v1";
+const BASELINE_STORAGE_KEY = "unshrimp.calibrationBaseline.v2";
 const INFERENCE_INTERVAL_MS = 200;
 const CALIBRATION_SECONDS = 5;
 const ALERT_COOLDOWN_MS = 15000;
@@ -77,6 +77,7 @@ export function usePostureMonitor({
   const calibrationTimerRef = useRef<number | null>(null);
   const predictionBufferRef = useRef<Array<{ label: PostureLabel; timestamp: number }>>([]);
   const lastAlertRef = useRef(0);
+  const smoothedScoreRef = useRef<number | null>(null);
 
   useEffect(() => {
     baselineRef.current = baseline;
@@ -174,6 +175,7 @@ export function usePostureMonitor({
         setResult(INITIAL_RESULT);
         setPoseConfidence(0);
         setFps(0);
+        smoothedScoreRef.current = null;
       }
       return;
     }
@@ -239,9 +241,15 @@ export function usePostureMonitor({
       setPoseStatus("ready");
 
       const prediction = predictPosture(browserModel, poseBuild.featureValues);
+      const preliminaryResult = combinePostureDecision(
+        prediction,
+        poseBuild.features,
+        baselineRef.current,
+        prediction.label
+      );
       predictionBufferRef.current = [
         ...predictionBufferRef.current.filter((item) => now - item.timestamp <= 10000),
-        { label: prediction.label, timestamp: now }
+        { label: preliminaryResult.label, timestamp: now }
       ];
       const smoothedLabel = getSmoothedLabel(predictionBufferRef.current, now);
       const nextResult = combinePostureDecision(
@@ -250,10 +258,17 @@ export function usePostureMonitor({
         baselineRef.current,
         smoothedLabel
       );
-      setResult(nextResult);
+      const displayResult = {
+        ...nextResult,
+        score: smoothScore(nextResult.score, smoothedScoreRef.current, nextResult.label)
+      };
+      smoothedScoreRef.current = displayResult.score;
+      setResult(displayResult);
 
       if (
-        nextResult.alertReady &&
+        !isCalibratingRef.current &&
+        baselineRef.current &&
+        displayResult.alertReady &&
         isSustainedBadPosture(predictionBufferRef.current, now) &&
         now - lastAlertRef.current > ALERT_COOLDOWN_MS
       ) {
@@ -313,9 +328,20 @@ export function usePostureMonitor({
         };
         setBaseline(nextBaseline);
         baselineRef.current = nextBaseline;
+        predictionBufferRef.current = [];
+        smoothedScoreRef.current = 100;
         localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(nextBaseline));
         setCalibrationState("calibrated");
         setCalibrationCountdown(null);
+        setResult({
+          label: "good_posture",
+          nnLabel: "good_posture",
+          ruleLabel: "good_posture",
+          confidence: 1,
+          score: 100,
+          message: "Calibration saved. This upright posture is now your baseline.",
+          alertReady: false
+        });
       }
     }, 1000);
   }, []);
@@ -351,6 +377,16 @@ function averageFeatures(samples: PostureFeatures[]): PostureFeatures {
       samples.reduce((sum, sample) => sum + sample[key], 0) / Math.max(1, samples.length);
     return features;
   }, {} as PostureFeatures);
+}
+
+function smoothScore(nextScore: number, previousScore: number | null, label: PostureLabel) {
+  if (previousScore === null) {
+    return nextScore;
+  }
+
+  const recoveryWeight = label === "good_posture" ? 0.42 : 0.18;
+  const smoothed = previousScore * (1 - recoveryWeight) + nextScore * recoveryWeight;
+  return Math.round(smoothed);
 }
 
 function readStoredBaseline(): CalibrationBaseline | null {
