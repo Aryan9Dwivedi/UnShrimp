@@ -1,4 +1,4 @@
-﻿# UnShrimp Task Plan
+# UnShrimp Task Plan
 
 This document tracks the major work needed to move UnShrimp from initial scope to a stable final demo. Priorities are grouped as:
 
@@ -67,7 +67,7 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 | P2 | Analytics | 57 | Track posture time | Track time spent in good, shrimp, forward lean, looking down, and uncertain states. | Session has duration per posture state. | Not Started |
 | P2 | Analytics | 58 | Track number of alerts | Count posture alerts per session. | Alert count appears in session stats. | Not Started |
 | P2 | Analytics | 59 | Build session summary panel | Show total time, good posture percentage, bad posture percentage, most common issue, alerts, and average score. | Stop session displays summary. | Not Started |
-| P0 | Testing | 60 | Test extension loading | Test Chrome Load Unpacked on at least two machines. | Extension loads successfully outside dev machine. | Done |
+| P0 | Testing | 60 | Test extension loading | Test Chrome Load Unpacked on at least two machines. | Extension loads successfully outside dev machine. | Ongoing |
 | P0 | Testing | 61 | Test webcam behavior | Test start, stop, refresh, permission accepted, and permission denied. | Camera behavior is stable and clear. | Done |
 | P0 | Testing | 62 | Test posture cases manually | Test good, shrimp, forward lean, looking down, no person, partial body, and poor lighting. | Each case has known behavior and documented failure cases. | Ongoing |
 | P1 | Testing | 63 | Test on unseen people | Try users not used during threshold tuning or training. | At least 2 unseen users test the system. | Not Started |
@@ -78,3 +78,4 @@ This document tracks the major work needed to move UnShrimp from initial scope t
 | P0 | Demo Prep | 68 | Prepare demo flow | Script: open extension, start webcam, show landmarks, calibrate, sit normally, slouch, alert, lean, stop, show summary. | Demo can be completed in under 3 minutes. | Ongoing |
 | P0 | Demo Prep | 69 | Record backup demo video | Record working system in case live demo fails. | Backup video shows complete pipeline. | Not Started |
 | P0 | Demo Prep | 70 | Freeze features | Stop adding features before final testing. Only bug fixes and polish. | Final demo branch is stable. | Not Started |
+
