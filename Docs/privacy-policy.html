@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UnShrimp Privacy Policy</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        color: #1b2740;
+        background: #f4f7fb;
+      }
+      body {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+      }
+      h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+      }
+      .updated {
+        color: #5d6d86;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+        margin-top: 1.75rem;
+      }
+      a {
+        color: #2d9c8b;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>UnShrimp Privacy Policy</h1>
+    <p class="updated">Last updated: June 1, 2026</p>
+
+    <p>
+      UnShrimp (“we”, “the extension”) is a Chrome browser extension that helps users monitor
+      seated posture using their device webcam. This policy explains what data the extension uses
+      and how it is handled.
+    </p>
+
+    <h2>Summary</h2>
+    <ul>
+      <li>Webcam video is processed <strong>locally in your browser</strong>.</li>
+      <li>We do <strong>not</strong> upload, store, or sell photos or video from your camera.</li>
+      <li>Calibration data is saved only on your device.</li>
+    </ul>
+
+    <h2>Information the extension uses</h2>
+    <p>When you choose to start monitoring on the UnShrimp monitor page:</p>
+    <ul>
+      <li>
+        <strong>Camera:</strong> The extension accesses your webcam to estimate upper-body pose
+        landmarks. Frames are used in real time for posture detection and are not recorded or sent
+        to our servers.
+      </li>
+      <li>
+        <strong>Pose data:</strong> Numeric landmarks and posture features are computed on your
+        device to classify posture and show feedback.
+      </li>
+      <li>
+        <strong>Calibration baseline:</strong> If you calibrate, a small set of numeric features
+        representing your normal seated posture is stored in your browser’s
+        <code>localStorage</code> so the extension can compare future poses to your baseline.
+      </li>
+    </ul>
+
+    <h2>What we do not collect</h2>
+    <ul>
+      <li>No account or login is required.</li>
+      <li>No analytics or advertising trackers are built into the extension.</li>
+      <li>No server receives your webcam images or video.</li>
+    </ul>
+
+    <h2>Notifications</h2>
+    <p>
+      If enabled, the extension may show Chrome notifications and play a local alert sound after
+      sustained poor posture. You can turn sounds off in the extension settings.
+    </p>
+
+    <h2>Third-party components</h2>
+    <p>
+      The extension loads typography from Google Fonts when the monitor page is open. Pose
+      estimation uses a local MediaPipe model shipped inside the extension package.
+    </p>
+
+    <h2>Data retention and deletion</h2>
+    <p>
+      Calibration data remains in your browser until you clear site data for the extension or
+      remove the extension. Uninstalling the extension removes extension-local data from Chrome.
+    </p>
+
+    <h2>Children</h2>
+    <p>UnShrimp is not directed at children under 13.</p>
+
+    <h2>Wellness disclaimer</h2>
+    <p>
+      UnShrimp provides general posture awareness feedback only. It is not medical advice,
+      diagnosis, or treatment.
+    </p>
+
+    <h2>Changes</h2>
+    <p>We may update this policy. The “Last updated” date at the top will change when we do.</p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions: open an issue on the project repository at
+      <a href="https://github.com/Aryan9Dwivedi/UnShrimp">github.com/Aryan9Dwivedi/UnShrimp</a>.
+    </p>
+  </body>
+</html>

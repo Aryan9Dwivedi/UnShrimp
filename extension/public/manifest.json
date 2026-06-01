@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "UnShrimp",
   "version": "0.1.0",
-  "description": "Local webcam posture monitor with pose landmarks, calibration, and on-device feedback.",
+  "description": "Sit up. Shrimp proud. Local webcam posture coach with calibration and on-device feedback—no video uploaded.",
+  "homepage_url": "https://github.com/Aryan9Dwivedi/UnShrimp",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
