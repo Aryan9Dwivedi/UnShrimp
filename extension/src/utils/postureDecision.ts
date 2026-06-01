@@ -45,10 +45,6 @@ export function combinePostureDecision(
     label = "good_posture";
     confidence = Math.min(prediction.confidence, 0.65);
     message = "Looks mostly okay, but your calibrated baseline shows a small posture drift.";
-  } else if (prediction.label !== "good_posture" && ruleLabel === "good_posture") {
-    label = "good_posture";
-    confidence = 0.78;
-    message = "NN is unsure, but you are still close to your calibrated posture.";
   } else if (baselineDecision && baselineDecision.severity < 0.58) {
     label = "good_posture";
     confidence = 0.72;
